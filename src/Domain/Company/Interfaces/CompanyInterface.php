@@ -1,11 +1,15 @@
 <?php 
 namespace App\Domain\Company\Interfaces;
 
-interface CompanyInterface {
+use App\Domain\Company\Entities\CompanyEntity;
 
-    public function save(): bool;
-    public function findById(int $id): int;
-    public function updateDastivar(int $id, int $status): void;
-    public function updateDados(): bool;
-
+interface CompanyInterface
+{
+    public function save(CompanyEntity $company): CompanyEntity;
+    public function update(CompanyEntity $company): CompanyEntity;
+    public function findById(int $id): ?CompanyEntity;
+    public function findByUserId(int $userId): ?CompanyEntity;
+    /** @return CompanyEntity[] */
+    public function findAll(): array;
+    public function updateStatus(int $id, bool $active): void;
 }

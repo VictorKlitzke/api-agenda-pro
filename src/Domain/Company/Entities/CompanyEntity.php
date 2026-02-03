@@ -1,82 +1,118 @@
-<?php 
+<?php
+
+declare(strict_types=1);
+
 namespace App\Domain\Company\Entities;
 
-use Dom\Entity;
-use function DI\string;
+use DateTimeImmutable;
 
-final class CompanyEntity extends Entity {
-    public function __construct(
-        public readonly string $id,
-        public readonly string $name,
-        public readonly string $cnpjcpf,
-        public readonly string $email,
-        public readonly string $phone,
-        public readonly string $address,
-        public readonly string $city,
-        public readonly string $state,
+final class CompanyEntity
+{
+    private function __construct(
+        private ?int $id,
+        private int $userId,
+        private string $name,
+        private string $cnpj,
+        private string $address,
+        private string $city,
+        private string $state,
+        private bool $active,
+        private DateTimeImmutable $createdAt,
+        private ?DateTimeImmutable $updatedAt
     ) {
-        $this->changeName(name: $this->name);
+        $this->changeName($name);
     }
 
-    public function changeName(string $name) {
-        if ($name === "") {
-
-        }
-    }    
-
-    public function changeEmail(string $email) {
-        if ($email === "") {}
-    }
-
-    public function restore(
-        string $id,
+    public static function create(
+        int $userId,
         string $name,
-        string $cnpjcpf,
-        string $email,
-        string $phone,
+        string $cnpj,
         string $address,
         string $city,
         string $state
     ): self {
         return new self(
-            id: $id,
-            name: $name,
-            cnpjcpf: $cnpjcpf,
-            email: $email,
-            phone: $phone,
-            address: $address,
-            city: $city,
-        );  
-    }
-
-    public function create(
-        string $name,
-        string $cnpjcpf,
-        string $email,
-        string $phone,
-        string $address,
-        string $city,
-        string $state
-    ): self {
-        return new self (
             id: null,
-            name: $name,  
-            cnpjcpf: $cnpjcpf,
-            email: $email,
-            phone: $phone,
+            userId: $userId,
+            name: $name,
+            cnpj: $cnpj,
             address: $address,
             city: $city,
-            state: $state
+            state: $state,
+            active: true,
+            createdAt: new DateTimeImmutable(),
+            updatedAt: null
         );
     }
 
-    public function id(): ?int { return $this->id; }
-    public function name(): string { return $this->name; }
-    public function cvv(): string { return $this->cnpjcpf; }
-    public function email(): string { return $this->email; }
-    public function phone(): string { return $this->phone; }
-    public function address(): string { return $this->address; }
-    public function state(): string { return $this->state; }
-    public function city(): string { return $this->city; }    
+    public static function restore(
+        int $id,
+        int $userId,
+        string $name,
+        string $cnpj,
+        string $address,
+        string $city,
+        string $state,
+        bool $active,
+        DateTimeImmutable $createdAt,
+        ?DateTimeImmutable $updatedAt
+    ): self {
+        return new self(
+            id: $id,
+            userId: $userId,
+            name: $name,
+            cnpj: $cnpj,
+            address: $address,
+            city: $city,
+            state: $state,
+            active: $active,
+            createdAt: $createdAt,
+            updatedAt: $updatedAt
+        );
+    }
 
+    public function changeName(string $name): void
+    {
+        if (strlen(trim($name)) < 2) {
+            throw new \InvalidArgumentException('Nome inválido.');
+        }
+        $this->name = $name;
+    }
+
+    public function changeAddress(string $address, string $city, string $state): void
+    {
+        $this->address = $address;
+        $this->city = $city;
+        $this->state = $state;
+        $this->updatedAt = new DateTimeImmutable();
+    }
+
+    public function changeCnpj(string $cnpj): void
+    {
+        $this->cnpj = $cnpj;
+        $this->updatedAt = new DateTimeImmutable();
+    }
+
+    public function deactivate(): void
+    {
+        $this->active = false;
+        $this->updatedAt = new DateTimeImmutable();
+    }
+
+    public function activate(): void
+    {
+        $this->active = true;
+        $this->updatedAt = new DateTimeImmutable();
+    }
+
+    public function id(): ?int { return $this->id; }
+    public function userId(): int { return $this->userId; }
+    public function name(): string { return $this->name; }
+    public function cnpj(): string { return $this->cnpj; }
+    public function address(): string { return $this->address; }
+    public function city(): string { return $this->city; }
+    public function state(): string { return $this->state; }
+    public function isActive(): bool { return $this->active; }
+    public function createdAt(): DateTimeImmutable { return $this->createdAt; }
+    public function updatedAt(): ?DateTimeImmutable { return $this->updatedAt; }
 }

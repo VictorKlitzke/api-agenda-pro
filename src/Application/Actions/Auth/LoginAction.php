@@ -24,12 +24,19 @@ final class LoginAction extends Action
 
         $loginRequest = LoginUserRequest::fromArray($data);
 
-        $success = $this->service->execute($loginRequest);
+        $user = $this->service->execute($loginRequest);
 
-        if (!$success) {
+        if (!$user) {
             return $this->respondWithData(['error' => 'Credenciais inválidas'], 401);
         }
 
-        return $this->respondWithData(['message' => 'Login realizado com sucesso'], 200);
+        return $this->respondWithData([
+            'accessToken' => session_id(),
+            'user' => [
+                'id' => $user->id(),
+                'name' => $user->name(),
+                'email' => $user->email(),
+            ]
+        ], 200);
     }
 }

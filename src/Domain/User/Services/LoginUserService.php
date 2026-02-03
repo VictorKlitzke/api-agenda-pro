@@ -5,6 +5,7 @@ namespace App\Domain\User\Services;
 
 use App\Domain\User\Interfaces\UserInterface;
 use App\Domain\User\Data\DTOs\Request\LoginUserRequest;
+use App\Domain\User\Entities\UserEntity;
 
 final class LoginUserService
 {
@@ -12,16 +13,16 @@ final class LoginUserService
         private UserInterface $users
     ) {}
 
-    public function execute(LoginUserRequest $request): bool
+    public function execute(LoginUserRequest $request): ?UserEntity
     {
         $user = $this->users->findByEmail(email: $request->email());
 
         if (!$user) {
-            return false;
+            return null;
         }
 
         if (!password_verify(password: $request->password(), hash: $user->passwordHash())) {
-            return false;
+            return null;
         }
 
         if (session_status() === PHP_SESSION_NONE) {
@@ -30,6 +31,6 @@ final class LoginUserService
 
         $_SESSION['user_id'] = $user->id();
 
-        return true;
+        return $user;
     }
 }

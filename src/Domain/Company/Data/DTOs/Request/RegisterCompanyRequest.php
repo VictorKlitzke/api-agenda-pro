@@ -2,51 +2,34 @@
 namespace App\Domain\Company\Data\DTOs\Request;
 
 
-final class RegisterCompanyRequest{
-
+final class RegisterCompanyRequest
+{
     public function __construct(
-        private string $nomeEmpresa,
+        private int $userId,
+        private string $name,
         private string $cnpj,
-        private string $endereco,
-        private string $telefone,
-        private string $email
+        private string $address,
+        private string $city,
+        private string $state
     ) {
     }
 
     public static function fromArray(array $data): self
     {
         return new self(
-            nomeEmpresa: $data['nomeEmpresa'] ?? '',
+            userId: (int) ($data['userId'] ?? 0),
+            name: $data['name'] ?? '',
             cnpj: $data['cnpj'] ?? '',
-            endereco: $data['endereco'] ?? '',
-            telefone: $data['telefone'] ?? '',
-            email: $data['email'] ?? ''
+            address: $data['address'] ?? '',
+            city: $data['city'] ?? '',
+            state: $data['state'] ?? ''
         );
     }
 
-    public function nomeEmpresa(): string
-    {
-        return $this->nomeEmpresa;
-    }
-
-    public function cnpj(): string
-    {
-        return $this->cnpj;
-    }
-
-    public function endereco(): string
-    {
-        return $this->endereco;
-    }
-
-    public function telefone(): string
-    {
-        return $this->telefone;
-    }
-
-    public function email(): string
-    {
-        return $this->email;
-    }
-
+    public function userId(): int { return $this->userId; }
+    public function name(): string { return $this->name; }
+    public function cnpj(): string { return $this->cnpj; }
+    public function address(): string { return $this->address; }
+    public function city(): string { return $this->city; }
+    public function state(): string { return $this->state; }
 }
