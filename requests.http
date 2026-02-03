@@ -1,0 +1,35 @@
+### Variáveis
+@host = http://127.0.0.1:8080
+@token =
+
+### Registrar usuário
+POST {{host}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Teste Usuario",
+  "email": "victorklitzke2@gmail.com",
+  "password": "secret",
+  "tipoConta": "cliente",
+  "telefone": "11999999999"
+
+}
+
+### Login (retorna token)
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "secret"
+}
+
+### Listar usuários (usar Authorization)
+GET {{host}}/users
+Authorization: Bearer {{token}}
+
+### Ver usuário por id
+GET {{host}}/users/1
+Authorization: Bearer {{token}}
+
+# Dica: após obter o token no response do login, copie-o para a variável `@token` no topo deste arquivo ou use o recurso de ambientes do REST Client.
