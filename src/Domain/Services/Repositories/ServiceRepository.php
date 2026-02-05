@@ -1,6 +1,7 @@
-<?php 
+<?php
 namespace App\Domain\Services\Repositories;
 
+use App\Domain\Services\Entities\ServiceEntity;
 use App\Domain\Services\Interfaces\ServiceInterface;
 
 class ServiceRepository implements ServiceInterface
@@ -12,26 +13,34 @@ class ServiceRepository implements ServiceInterface
     public function save(ServiceEntity $service): ServiceEntity
     {
         $id = $this->connection->table('services')->insertGetId([
-            'company_id' => $service->companyId(),
-            'name' => $service->name(),
-            'description' => $service->description(),
-            'price' => $service->price(),
-            'duration_minutes' => $service->durationMinutes(),
+            'company_id' => $service->getCompanyId(),
+            'name' => $service->getServiceName(),
+            'description' => $service->getDescription(),
+            'price' => $service->getPrice(),
+            'duration_minutes' => $service->getDuration(),
             'active' => $service->isActive() ? 1 : 0,
-            'created_at' => $service->createdAt()->format('Y-m-d H:i:s'),
         ]);
 
         return $this->findById((int) $id);
     }
-    public function findById(int $id): ServiceEntity
-    {
-        $row = $this->connection->table('services')->where('id', $id)->first();
 
-        return $row ? $this->mapToEntity((array) $row) : null;
-    }
-    public function findByIds(array $ids): ServiceEntity
+    public function update(ServiceEntity $service): bool
     {
-        $rows = $this->connection->table('services')->whereIn('id', $ids)->get();
+        return $this->connection->table('services')
+            ->where('id', $service->getId())
+            ->update([
+                'company_id' => $service->getCompanyId(),
+                'name' => $service->getServiceName(),
+                'description' => $service->getDescription(),
+                'price' => $service->getPrice(),
+                'duration_minutes' => $service->getDuration(),
+                'active' => $service->isActive() ? 1 : 0,
+            ]) > 0;
+    }
+
+    public function findAll(): array
+    {
+        $rows = $this->connection->table('services')->get();
 
         $result = [];
         foreach ($rows as $r) {
@@ -39,7 +48,15 @@ class ServiceRepository implements ServiceInterface
         }
         return $result;
     }
-    public function find(int $id): ServiceEntity
+
+    public function delete(int $id): bool
+    {
+        return $this->connection->table('services')
+            ->where('id', $id)
+            ->delete() > 0;
+    }
+
+    public function findById(int $id): ?ServiceEntity
     {
         $row = $this->connection->table('services')->where('id', $id)->first();
 
@@ -49,14 +66,13 @@ class ServiceRepository implements ServiceInterface
     public function mapToEntity(array $data): ServiceEntity
     {
         return ServiceEntity::restore(
-            (int)$data['id'],
-            (int)$data['company_id'],
-            (string)$data['name'],
-            (string)$data['description'],
-            (float)$data['price'],
-            (int)$data['duration_minutes'],
-            (bool)($data['active'] ?? true),
-            new \DateTimeImmutable($data['created_at'])
+            (int) $data['id'],
+            (int) $data['company_id'],
+            (string) $data['name'],
+            (string) $data['description'],
+            (float) $data['price'],
+            (int) $data['duration_minutes'],
+            (bool) ($data['active'] ?? true),
         );
-    }   
+    }
 }

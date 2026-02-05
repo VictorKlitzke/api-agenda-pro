@@ -30,8 +30,13 @@ final class LoginAction extends Action
             return $this->respondWithData(['error' => 'Credenciais inválidas'], 401);
         }
 
+        $token = null;
+        if (session_status() !== PHP_SESSION_NONE) {
+            $token = $_SESSION['access_token'] ?? session_id();
+        }
+
         return $this->respondWithData([
-            'accessToken' => session_id(),
+            'accessToken' => $token,
             'user' => [
                 'id' => $user->id(),
                 'name' => $user->name(),
