@@ -13,17 +13,7 @@ return function (ContainerBuilder $containerBuilder) {
             return new Settings([
                 'displayErrorDetails' => true,
                 'logError' => false,
-                'logErrorDetails' => false,
-                'db' => [
-                    'driver' => $_ENV['DB_DRIVER'] ?? 'pdo_mysql',
-                    'host' => $_ENV['DB_HOST'] ?? '127.0.0.1',
-                    'database' => $_ENV['DB_NAME'] ?? 'agendapro',
-                    'username' => $_ENV['DB_USER'] ?? 'root',
-                    'password' => $_ENV['DB_PASSWORD'] ?? 'root',
-                    'port' => $_ENV['DB_PORT'] ?? '8889',
-                    'charset' => 'utf8',
-                    'prefix' => '',
-                ],
+                'logErrorDetails' => false,       
                 'mail' => [
                     'from' => $_ENV['MAIL_FROM'] ?? null,
                     'smtp_host' => $_ENV['MAIL_SMTP_HOST'] ?? null,
