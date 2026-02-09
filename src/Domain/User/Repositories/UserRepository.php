@@ -7,15 +7,11 @@ use Illuminate\Database\Connection;
 
 class UserRepository implements UserInterface
 {
-    public function __construct(private Connection $connection) {}
+    public function __construct(protected Connection $connection) {}
 
     public function findByEmail(string $email): ?UserEntity
     {
         $row = $this->connection->table('users')->where('email', $email)->first();
-
-        if (!$row) {
-            return null;
-        }
 
         return UserEntity::restore(
             (int)$row->id,
@@ -43,9 +39,8 @@ class UserRepository implements UserInterface
             'created_at' => $user->createdAt()->format('Y-m-d H:i:s'),
         ];
 
-        if ($verificationCode !== null) {
-            $data['verification_code'] = $verificationCode;
-        }
+        if ($verificationCode !== null) $data['verification_code'] = $verificationCode;
+        
 
         $this->connection->table('users')->insert($data);
     }

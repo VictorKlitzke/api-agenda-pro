@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\User\Services;
 
-use App\Domain\User\Interfaces\UserInterface;
+use App\Domain\User\Repositories\UserRepository;
 use App\Domain\User\Data\DTOs\Request\LoginUserRequest;
 use App\Domain\User\Entities\UserEntity;
 use App\Domain\Auth\Repositories\LoginAttemptRepository;
@@ -12,7 +12,7 @@ use App\Domain\Auth\Repositories\UserTokenRepository;
 final class LoginUserService
 {
     public function __construct(
-        private UserInterface $users,
+        private UserRepository $users,
         private LoginAttemptRepository $attempts,
         private UserTokenRepository $tokens
     ) {}
@@ -37,10 +37,8 @@ final class LoginUserService
             return null;
         }
 
-        // successful login: reset attempts
         $this->attempts->resetAttempts($email);
 
-        // generate token (random) and persist
         $token = bin2hex(random_bytes(32));
         $expiresAt = new \DateTimeImmutable('+1 hour');
         $this->tokens->createToken($user->id(), $token, $expiresAt);
@@ -52,7 +50,6 @@ final class LoginUserService
         $_SESSION['user_id'] = $user->id();
         $_SESSION['access_token'] = $token;
 
-        // attach token to entity? we'll return user and action will include token
         return $user;
     }
 }

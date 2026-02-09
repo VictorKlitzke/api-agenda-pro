@@ -10,8 +10,8 @@ final class CreateLoginAttemptsAndTokens extends AbstractMigration
     {
         if (!$this->hasTable('login_attempts')) {
             $table = $this->table('login_attempts', ['id' => false, 'primary_key' => ['email']]);
-            $table->addColumn('email', 'string', ['limit' => 255])
-                ->addColumn('attempts', 'integer', ['default' => 0])
+            $table->addColumn('email', 'string', ['limit' => 255, 'null' => false])
+                ->addColumn('attempts', 'integer', ['default' => 0, 'null' => false])
                 ->addColumn('last_attempt_at', 'datetime', ['null' => true])
                 ->addColumn('locked_until', 'datetime', ['null' => true])
                 ->create();

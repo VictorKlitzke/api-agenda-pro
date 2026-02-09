@@ -1,5 +1,5 @@
 <?php
-namespace Domain\Company\Repositories;
+namespace App\Domain\Company\Repositories;
 use App\Domain\Company\Entities\CompanyEntity;
 use App\Domain\Company\Interfaces\CompanyInterface;
 use Illuminate\Database\Connection;
@@ -7,9 +7,7 @@ use Illuminate\Database\Connection;
 class CompanyRepository implements CompanyInterface
 {
 
-    public function __construct(protected Connection $connection)
-    {
-    }
+    public function __construct(protected Connection $connection) {}
 
     public function save(CompanyEntity $company): CompanyEntity
     {

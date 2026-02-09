@@ -10,10 +10,7 @@ class CompanyListUserIdAction extends Action
 {
 
     public function __construct(private CompanyService $companyService)
-    {
-        $this->companyService = $companyService;
-
-    }
+    {}
 
     public function action(): ResponseInterface{
 
@@ -23,5 +20,4 @@ class CompanyListUserIdAction extends Action
     return $this->respondWithData($result);
 
     }
-    // Class implementation
 }

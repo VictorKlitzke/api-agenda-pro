@@ -13,9 +13,9 @@ return function (ContainerBuilder $containerBuilder) {
       $config = require __DIR__ . '/Config/ConfigDatabase.php';
 
       $capsule = new Capsule();
-      foreach ($config['connect'] as $name => $connection) {
-        $capsule->addConnection($connection, $name);
-      }
+        foreach ($config['connect'] as $name => $connection) {
+          $capsule->addConnection($connection, $name);
+        }
 
       $capsule->setAsGlobal();
       $capsule->bootEloquent();
@@ -24,7 +24,7 @@ return function (ContainerBuilder $containerBuilder) {
     },
 
     'db.agendapro' => fn(Capsule $capsule): Connection
-      => $capsule->getConnection('db.agendapro'),
+      => $capsule->getConnection('agendapro'),
 
 
   ]);

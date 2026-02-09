@@ -3,6 +3,7 @@ namespace App\Domain\Services\Repositories;
 
 use App\Domain\Services\Entities\ServiceEntity;
 use App\Domain\Services\Interfaces\ServiceInterface;
+use Illuminate\Database\Connection;
 
 class ServiceRepository implements ServiceInterface
 {

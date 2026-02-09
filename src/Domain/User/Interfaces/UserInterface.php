@@ -2,7 +2,6 @@
 namespace App\Domain\User\Interfaces;
 
 use App\Domain\User\Entities\UserEntity;
-use App\Domain\User\Requests\LoginUserRequest;
 
 interface UserInterface
 {

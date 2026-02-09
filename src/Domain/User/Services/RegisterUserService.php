@@ -5,14 +5,14 @@ namespace App\Domain\User\Services;
 
 use App\Domain\User\Entities\UserEntity;
 use App\Domain\User\Events\UserRegisteredEvent;
-use App\Domain\User\Interfaces\UserInterface;
+use App\Domain\User\Repositories\UserRepository;
 use App\Domain\User\Data\DTOs\Request\RegisterUserRequest;
 use App\Infrastructure\Events\EventDispatcher;
 
 final class RegisterUserService
 {
     public function __construct(
-        private UserInterface $users,
+        private UserRepository $users,
         private EventDispatcher $dispatcher
     ) {
     }

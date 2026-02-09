@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Application\Actions\Auth\LoginUserAction;
 use App\Application\Actions\Companys\List\CompanyListUserIdAction;
 use App\Application\Actions\Companys\Register\CompanyRegisterAction;
 use App\Application\Actions\User\ListUsersAction;
 use App\Application\Actions\User\ViewUserAction;
 use App\Application\Actions\Auth\RegisterAction;
-use App\Application\Actions\Auth\LoginAction;
 use App\Application\Actions\Company\RegisterCompanyAction;
 use App\Application\Actions\Company\ListCompaniesAction;
 use App\Application\Actions\Company\ViewCompanyAction;
@@ -41,7 +41,7 @@ return function (App $app) {
 
     $app->group('/auth', function (Group $group) {
         $group->post('/register', RegisterAction::class);
-        $group->post('/login', LoginAction::class);
+        $group->post('/login', LoginUserAction::class);
     });
 
     $app->group('/companies', function (Group $group) {

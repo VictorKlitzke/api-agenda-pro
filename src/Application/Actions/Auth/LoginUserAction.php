@@ -1,37 +1,39 @@
-<?php 
+<?php
+namespace App\Application\Actions\Auth;
 
+use App\Application\Actions\Action;
 use App\Domain\User\Data\DTOs\Request\LoginUserRequest;
+use App\Domain\User\Services\LoginUserService;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
-final class LoginUserAction
+final class LoginUserAction extends Action
 {
     public function __construct(
         private LoginUserService $service
-    ) {}
+    ) {
+    }
 
-    public function __invoke(
-        ServerRequestInterface $request,
-        ResponseInterface $response
-    ): ResponseInterface {
-
-        $data = (array) $request->getParsedBody();
+    public function action(): ResponseInterface
+    {
+        $data = (array) $this->request->getParsedBody();
 
         $loginRequest = LoginUserRequest::fromArray($data);
 
-        $success = $this->service->execute(request: $loginRequest);
+        $user = $this->service->execute($loginRequest);
 
-        if (!$success) {
-            $response->getBody()->write(json_encode([
-                'error' => 'Credenciais inválidas'
-            ]));
-            return $response->withStatus(401);
-        }
+        if (!$user) return $this->respondWithData(['error' => 'Credenciais inválidas'], 401);
+        
 
-        $response->getBody()->write(json_encode([
-            'message' => 'Login realizado com sucesso'
-        ]));
+        $token = null;
+        $token = $_SESSION['access_token'] ?? session_id();
 
-        return $response->withStatus(200);
+        return $this->respondWithData([
+            'accessToken' => $token,
+            'user' => [
+                'id' => $user->id(),
+                'name' => $user->name(),
+                'email' => $user->email(),
+            ]
+        ], 200);
     }
 }

@@ -7,15 +7,14 @@ namespace App\Domain\Company\Services;
 use App\Domain\Company\Data\DTOs\Request\RegisterCompanyRequest;
 use App\Domain\Company\Data\DTOs\Request\UpdateCompanyRequest;
 use App\Domain\Company\Entities\CompanyEntity;
-use App\Domain\Company\Interfaces\CompanyInterface;
+use App\Domain\Company\Repositories\CompanyRepository;
 use App\Domain\DomainException\DomainRecordNotFoundException;
 
 final class CompanyService
 {
     public function __construct(
-        private CompanyInterface $companies
-    ) {
-    }
+        private CompanyRepository $companies
+    ) {}
 
     public function register(RegisterCompanyRequest $request): CompanyEntity
     {

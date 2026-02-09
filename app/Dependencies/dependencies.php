@@ -10,8 +10,8 @@ return function (ContainerBuilder $containerBuilder) {
     $paths = [
         __DIR__ . "/../../src/Infrastructure/Database/ManagerDatabase.php",
         __DIR__ . "/repositories.php",
-        __DIR__ . "/settings.php",
-        __DIR__ . "/MailConfig.php",
+        __DIR__ . "/../settings.php",
+        __DIR__ . "/mailConfig.php",
     ];
 
     foreach ($paths as $path) {
