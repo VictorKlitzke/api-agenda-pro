@@ -1,82 +1,37 @@
-# Slim Framework 4 Skeleton Application
+# API Agenda Pro
 
-[![Coverage Status](https://coveralls.io/repos/github/slimphp/Slim-Skeleton/badge.svg?branch=master)](https://coveralls.io/github/slimphp/Slim-Skeleton?branch=master)
+API REST para o sistema Agenda Pro, construída em Slim 4 com PHP‑DI.
 
-Use this skeleton application to quickly setup and start working on a new Slim Framework 4 application. This application uses the latest Slim 4 with Slim PSR-7 implementation and PHP-DI container implementation. It also uses the Monolog logger.
+## Requisitos
 
-This skeleton application was built for Composer. This makes setting up a new Slim Framework application quick and easy.
+- PHP 8.0+
+- Composer
+- Banco de dados MySQL/MariaDB (ou compatível)
 
-## Install the Application
+## Configuração
 
-Run this command from the directory in which you want to install your new Slim Framework application. You will require PHP 7.4 or newer.
+1. Instale as dependências:
+	- `composer install`
+2. Crie o arquivo de ambiente:
+	- copie `.env.example` para `.env`
+3. Ajuste as variáveis de banco, token e SMTP em `.env`.
 
-```bash
-composer create-project slim/slim-skeleton [my-app-name]
-```
+Se houver migrations, execute conforme o seu fluxo (ex.: Phinx).
 
-Replace `[my-app-name]` with the desired directory name for your new application. You'll want to:
+## Executar
 
-* Point your virtual host document root to your new application's `public/` directory.
-* Ensure `logs/` is web writable.
+- `composer start`
+- Acesse: http://127.0.0.1:8080
 
-To run the application in development, you can run these commands 
+## Testes
 
-```bash
-cd [my-app-name]
-composer start
-```
+- `composer test`
 
-Or you can use `docker-compose` to run the app with `docker`, so you can run these commands:
-```bash
-cd [my-app-name]
-docker-compose up -d
-```
-After that, open `http://localhost:8080` in your browser.
+## CORS
 
-Run this command in the application directory to run the test suite
+Configure as variáveis abaixo em `.env`:
 
-```bash
-composer test
-```
-
-That's it! Now go build something cool.
-
-## Database & Migrations (PostgreSQL)
-
-This project uses Doctrine ORM. The container registers `Doctrine\ORM\EntityManager` and reads DB settings from `app/settings.php`.
-
-Install dependencies:
-
-```bash
-cd api
-composer require doctrine/orm doctrine/dbal doctrine/annotations
-composer require --dev doctrine/migrations
-```
-
-Configure your environment variables (example `.env` or your server env):
-
-```
-DB_DRIVER=pgsql
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_DATABASE=your_database
-DB_USERNAME=your_user
-DB_PASSWORD=your_password
-```
-
-Basic usage:
-
-- EntityManager is available via DI: request the `Doctrine\\ORM\\EntityManager` from the container.
-- If you want migrations, set up `doctrine/migrations` and run `vendor/bin/doctrine-migrations migrate` after configuring migration paths.
-
-Example composer commands to generate entities/migrations (after installing packages):
-
-```bash
-cd api
-# create entities manually under src/Domain
-# generate migration (if using doctrine/migrations):
-vendor/bin/doctrine-migrations diff
-vendor/bin/doctrine-migrations migrate
-```
-
-If you want, I can create an example `User` entity and update the repository wiring to use Doctrine repositories.
+- `CORS_ALLOWED_ORIGINS` (lista separada por vírgula)
+- `CORS_ALLOW_CREDENTIALS`
+- `CORS_ALLOWED_HEADERS`
+- `CORS_ALLOWED_METHODS`

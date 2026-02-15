@@ -1,6 +1,6 @@
 <?php 
 
-namespace Domain\Clients\Data\DTOs\Request;
+namespace App\Domain\Clients\Data\DTOs\Request;
 
 use App\Infrastructure\Exceptions\CustomException;
 
@@ -16,12 +16,12 @@ final class ClientRequest
     }
 
     public function changePhone(string $phone): void {
-        if ($this->phone < 11) {
+        if (strlen($this->phone) < 11) {
             throw new CustomException("Contanto tem que ter 11 caracteres");
         }
     }
 
-    public function fromArray(array $data): self
+    public static function fromArray(array $data): self
     {
         return new self(
             name: $data['name'],

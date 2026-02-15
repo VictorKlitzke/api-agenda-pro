@@ -1,5 +1,5 @@
 <?php 
-namespace Domain\Clients\Entities;
+namespace App\Domain\Clients\Entities;
 
 class ClientEntity 
 {
@@ -10,7 +10,7 @@ class ClientEntity
         private ?string $origem
     ) {}
 
-    public function restore(
+    public static function restore(
         int $id,
         string $name,
         string $phone,
@@ -22,9 +22,9 @@ class ClientEntity
             phone: $phone,
             origem: $origem
         );
-    }   
+    }  
 
-    public function save(
+    public static function create(
         string $name,
         string $phone,
         ?string $origem

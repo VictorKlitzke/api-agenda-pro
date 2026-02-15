@@ -1,20 +1,35 @@
 <?php
-namespace Domain\Clients\Services;
+namespace App\Domain\Clients\Services;
 
-use Domain\Clients\Entities\ClientEntity;
-use Domain\Clients\Repositories\ClientRepository;
+use App\Domain\Clients\Data\DTOs\Request\ClientRequest;
+use App\Domain\Clients\Entities\ClientEntity;
+use App\Domain\Clients\Repositories\ClientRepository;
 
-class ClientService {
-  public function __construct(private readonly ClientRepository $repository) {}
-  
-  public function register(ClientEntity $client): bool
+class ClientService
+{
+  public function __construct(private readonly ClientRepository $repository)
   {
-    return $this->repository->register($client);
-  } 
+  }
 
-  public function update(ClientEntity $client): bool
+  public function register(ClientRequest $client): bool
   {
-    return $this->repository->update($client);
+    $client = ClientEntity::create(
+      name: $client->name,
+      phone: $client->phone,
+      origem: $client->origem
+    );
+    return $this->repository->register(client: $client);
+  }
+
+  public function update(ClientRequest $client, int $id): bool
+  {
+    $clientEntity = ClientEntity::restore(
+      id: $id,
+      name: $client->name,
+      phone: $client->phone,
+      origem: $client->origem
+    );
+    return $this->repository->update(client: $clientEntity);
   }
 
   public function delete(int $id): bool
@@ -25,8 +40,13 @@ class ClientService {
   public function findAll(): array
   {
     return $this->repository->findAll();
-  } 
-  public function findById(int $id): ?ClientRepository
+  }
+
+  public function findAllByCompanyId(int $companyId): array
+  {
+    return $this->repository->findAllByCompanyId($companyId);
+  }
+  public function findById(int $id): ?ClientEntity
   {
     return $this->repository->findById($id);
   }

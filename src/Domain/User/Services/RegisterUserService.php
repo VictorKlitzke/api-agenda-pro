@@ -30,8 +30,8 @@ final class RegisterUserService
             zipCode: $verificationCode
         );
 
-        $this->dispatcher->dispatch(new UserRegisteredEvent(userId: $user->id(), 
-        name: $user->name(), email: $user->email(), verificationCode: $verificationCode));
+        // $this->dispatcher->dispatch(new UserRegisteredEvent(userId: $user->id(), 
+        // name: $user->name(), email: $user->email(), verificationCode: $verificationCode));
 
         $this->users->save(user: $user, verificationCode: $verificationCode);
 

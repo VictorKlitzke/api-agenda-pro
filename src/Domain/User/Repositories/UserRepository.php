@@ -13,6 +13,31 @@ class UserRepository implements UserInterface
     {
         $row = $this->connection->table('users')->where('email', $email)->first();
 
+        if (!$row) {
+            return null;
+        }
+
+        return UserEntity::restore(
+            (int)$row->id,
+            (string)$row->name,
+            (string)$row->email,
+            (string)$row->password,
+            $row->tipo_conta ?? 'PF',
+            $row->telefone ?? '',
+            $row->zip_code ?? '',
+            (bool)($row->active ?? true),
+            new \DateTimeImmutable($row->created_at)
+        );
+    }
+
+    public function findById(int $id): ?UserEntity
+    {
+        $row = $this->connection->table('users')->where('id', $id)->first();
+
+        if (!$row) {
+            return null;
+        }
+
         return UserEntity::restore(
             (int)$row->id,
             (string)$row->name,
@@ -35,7 +60,7 @@ class UserRepository implements UserInterface
             'tipo_conta' => $user->tipoConta(),
             'telefone' => $user->telefone(),
             'zip_code' => $user->zipCode(),
-            'active' => $user->isActive() ? 1 : 0,
+            'active' => 1,
             'created_at' => $user->createdAt()->format('Y-m-d H:i:s'),
         ];
 

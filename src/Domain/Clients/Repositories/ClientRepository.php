@@ -1,8 +1,8 @@
 <?php
-namespace Domain\Clients\Repositories;  
+namespace App\Domain\Clients\Repositories;  
 
-use Domain\Clients\Data\DTOs\Request\ClientInterface;
-use Domain\Clients\Entities\ClientEntity;
+use App\Domain\Clients\Interfaces\ClientInterface;
+use App\Domain\Clients\Entities\ClientEntity;
 use Illuminate\Database\Connection;
 
 
@@ -20,6 +20,33 @@ class ClientRepository implements ClientInterface
             'phone' => $client->getPhone(),
             'origem' => $client->getOrigem(),
         ]) > 0;
+    }
+
+    public function registerForCompany(string $name, string $phone, ?string $origem, int $companyId): int
+    {
+        return (int) $this->connection->table('clients')->insertGetId([
+            'tenant_id' => $companyId,
+            'company_id' => $companyId,
+            'name' => $name,
+            'phone' => $phone,
+            'origem' => $origem,
+            'active' => 1,
+            'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+        ]);
+    }
+
+    public function findByPhoneAndCompany(string $phone, int $companyId): ?array
+    {
+        if ($phone === '') {
+            return null;
+        }
+
+        $row = $this->connection->table('clients')
+            ->where('company_id', $companyId)
+            ->where('phone', $phone)
+            ->first();
+
+        return $row ? (array) $row : null;
     }
 
     public function update(ClientEntity $client): bool
@@ -43,6 +70,14 @@ class ClientRepository implements ClientInterface
     public function findAll(): array
     {
         return $this->connection->table('clients')->get()->toArray();
+    }
+
+    public function findAllByCompanyId(int $companyId): array
+    {
+        return $this->connection->table('clients')
+            ->where('company_id', $companyId)
+            ->get()
+            ->toArray();
     }
 
     public function findById(int $id): ?self

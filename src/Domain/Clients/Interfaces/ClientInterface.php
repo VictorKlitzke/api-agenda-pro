@@ -1,13 +1,14 @@
-<?php 
+<?php
 
-namespace Domain\Clients\Data\DTOs\Request;
+namespace App\Domain\Clients\Interfaces;
 
-use Domain\Clients\Entities\ClientEntity;
+use App\Domain\Clients\Entities\ClientEntity;
 
 interface ClientInterface {
     public function register(ClientEntity $client): bool;
     public function delete(int $id): bool;
     public function update(ClientEntity $client): bool;
     public function findAll(): array;
+    public function findAllByCompanyId(int $companyId): array;
     public function findById(int $id): ?self;
 }

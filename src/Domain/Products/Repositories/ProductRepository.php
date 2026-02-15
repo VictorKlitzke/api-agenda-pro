@@ -13,32 +13,36 @@ class ProductRepository implements ProductInterface
     {
     }
 
-    public function save(ProductEntity $product): ProductEntity
+    public function save(ProductEntity $product): bool 
     {
-        $id = $this->connection->table('products')->insertGetId([
+        $id = $this->connection->table('products')->insert([
             'name' => $product->name(),
             'description' => $product->description(),
             'price' => $product->price(),
+            'quantity' => $product->quantity(),
+            'company_id' => $product->companyId(),
             'active' => $product->isActive() ? 1 : 0,
             'created_at' => $product->createdAt()->format('Y-m-d H:i:s'),
         ]);
 
-        return $this->findById((int) $id);
+        return true;
     }
 
-    public function update(ProductEntity $product): ProductEntity
+    public function update(ProductEntity $product, int $id): ProductEntity
     {
         $this->connection->table('products')
-            ->where('id', $product->id())
+            ->where('id', $id)
             ->update([
                 'name' => $product->name(),
                 'description' => $product->description(),
                 'price' => $product->price(),
+                'quantity' => $product->quantity(),
+                'company_id' => $product->companyId(),
                 'active' => $product->isActive() ? 1 : 0,
                 'updated_at' => $product->updatedAt()?->format('Y-m-d H:i:s'),
             ]);
 
-        return $this->findById($product->id());
+        return $this->findById($id);
     }
 
     public function delete(int $id): bool
@@ -50,14 +54,17 @@ class ProductRepository implements ProductInterface
 
     public function findAll(): array
     {
-        $rows = $this->connection->table('products')->get();
-
-        $result = [];
-        foreach ($rows as $r) {
-            $result[] = $this->mapToEntity((array) $r);
-        }
+        $result = $this->connection->table('products')->get()->toArray();
 
         return $result;
+    }
+
+    public function findAllByCompanyId(int $companyId): array
+    {
+        return $this->connection->table('products')
+            ->where('company_id', $companyId)
+            ->get()
+            ->toArray();
     }
 
     public function findById(int $id): ?ProductEntity
@@ -74,6 +81,8 @@ class ProductRepository implements ProductInterface
             (string) $row['name'],
             isset($row['description']) ? (string) $row['description'] : null,
             isset($row['price']) && $row['price'] !== null ? (float) $row['price'] : null,
+            isset($row['quantity']) && $row['quantity'] !== null ? (int) $row['quantity'] : null,
+            isset($row['company_id']) && $row['company_id'] !== null ? (int) $row['company_id'] : null,
             (bool) ($row['active'] ?? true),
             new \DateTimeImmutable($row['created_at']),
             isset($row['updated_at']) && $row['updated_at'] ? new \DateTimeImmutable($row['updated_at']) : null

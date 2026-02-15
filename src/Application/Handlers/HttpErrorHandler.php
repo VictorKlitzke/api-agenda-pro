@@ -74,6 +74,48 @@ class HttpErrorHandler extends SlimErrorHandler
         $response = $this->responseFactory->createResponse($statusCode);
         $response->getBody()->write($encodedPayload);
 
-        return $response->withHeader('Content-Type', 'application/json');
+        $response = $response->withHeader('Content-Type', 'application/json');
+
+        return $this->withCorsHeaders($response);
+    }
+
+    private function withCorsHeaders(Response $response): Response
+    {
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        if ($origin === '') {
+            return $response;
+        }
+
+        $allowedOrigins = array_values(array_filter(array_map(
+            'trim',
+            explode(',', $_ENV['CORS_ALLOWED_ORIGINS'] ?? '')
+        )));
+
+        $resolvedOrigin = null;
+        if (empty($allowedOrigins) || in_array('*', $allowedOrigins, true)) {
+            $resolvedOrigin = '*';
+        } elseif (in_array($origin, $allowedOrigins, true)) {
+            $resolvedOrigin = $origin;
+        }
+
+        if ($resolvedOrigin === null) {
+            return $response;
+        }
+
+        $response = $response
+            ->withHeader('Access-Control-Allow-Origin', $resolvedOrigin)
+            ->withHeader('Access-Control-Allow-Headers', $_ENV['CORS_ALLOWED_HEADERS'] ?? 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+            ->withHeader('Access-Control-Allow-Methods', $_ENV['CORS_ALLOWED_METHODS'] ?? 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+
+        $allowCredentials = filter_var($_ENV['CORS_ALLOW_CREDENTIALS'] ?? 'false', FILTER_VALIDATE_BOOLEAN);
+        if ($resolvedOrigin !== '*' && $allowCredentials) {
+            $response = $response->withHeader('Access-Control-Allow-Credentials', 'true');
+        }
+
+        if ($resolvedOrigin !== '*') {
+            $response = $response->withHeader('Vary', 'Origin');
+        }
+
+        return $response;
     }
 }

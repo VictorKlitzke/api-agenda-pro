@@ -33,6 +33,7 @@ final class LoginUserAction extends Action
                 'id' => $user->id(),
                 'name' => $user->name(),
                 'email' => $user->email(),
+                'tipoConta' => $user->tipoConta(),
             ]
         ], 200);
     }

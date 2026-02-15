@@ -38,9 +38,9 @@ final class CompanyService
             throw new DomainRecordNotFoundException('Empresa não encontrada');
         }
 
-        $company->changeName($request->name());
-        $company->changeCnpj($request->cnpj());
-        $company->changeAddress($request->address(), $request->city(), $request->state());
+        $company->changeName(name: $request->name());
+        $company->changeCnpj(cnpj: $request->cnpj());
+        $company->changeAddress(address: $request->address(), city: $request->city(), state: $request->state());
 
         return $this->companies->update($company);
     }
@@ -54,7 +54,7 @@ final class CompanyService
         }
 
         $company->deactivate();
-        $this->companies->updateStatus($id, false);
+        $this->companies->updateStatus(id: $id, active: false);
     }
 
     public function listAll(): array
@@ -64,11 +64,17 @@ final class CompanyService
 
     public function findById(int $id): ?CompanyEntity
     {
-        return $this->companies->findById($id);
+        return $this->companies->findById(id: $id);
     }
 
-    public function findByUserId(int $userId): ?CompanyEntity
+    public function findByUserId(int $userId): ?int
     {
-        return $this->companies->findByUserId($userId);
+        $res = $this->companies->findByUserId(userId: $userId);
+        return $res;
+    }
+
+    public function findEntityByUserId(int $userId): ?CompanyEntity
+    {
+        return $this->companies->findEntityByUserId(userId: $userId);
     }
 }

@@ -12,6 +12,8 @@ final class ProductEntity
         private string $name,
         private ?string $description,
         private ?float $price,
+        private ?int $quantity,
+        private ?int $companyId,
         private bool $active,
         private DateTimeImmutable $createdAt,
         private ?DateTimeImmutable $updatedAt
@@ -19,13 +21,21 @@ final class ProductEntity
         $this->changeName($name);
     }
 
-    public static function create(string $name, ?string $description = null, ?float $price = null): self
+    public static function create(
+        string $name, 
+        ?string $description = null, 
+        ?float $price = null,
+        ?int $quantity = null,
+        ?int $companyId = null,
+    ): self
     {
         return new self(
             id: null,
             name: $name,
             description: $description,
             price: $price,
+            quantity: $quantity,
+            companyId: $companyId,
             active: true,
             createdAt: new DateTimeImmutable(),
             updatedAt: null
@@ -37,6 +47,8 @@ final class ProductEntity
         string $name,
         ?string $description,
         ?float $price,
+        ?int $quantity,
+        ?int $companyId,
         bool $active,
         DateTimeImmutable $createdAt,
         ?DateTimeImmutable $updatedAt
@@ -46,11 +58,15 @@ final class ProductEntity
             name: $name,
             description: $description,
             price: $price,
+            quantity: $quantity,
+            companyId: $companyId,
             active: $active,
             createdAt: $createdAt,
             updatedAt: $updatedAt
         );
     }
+
+
 
     public function changeName(string $name): void
     {
@@ -88,7 +104,9 @@ final class ProductEntity
     public function id(): ?int { return $this->id; }
     public function name(): string { return $this->name; }
     public function description(): ?string { return $this->description; }
+    public function quantity(): ?int { return $this->quantity; }
     public function price(): ?float { return $this->price; }
+    public function companyId(): ?int { return $this->companyId; }
     public function isActive(): bool { return $this->active; }
     public function createdAt(): DateTimeImmutable { return $this->createdAt; }
     public function updatedAt(): ?DateTimeImmutable { return $this->updatedAt; }

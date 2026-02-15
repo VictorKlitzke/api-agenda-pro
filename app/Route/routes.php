@@ -3,33 +3,71 @@
 declare(strict_types=1);
 
 use App\Application\Actions\Auth\LoginUserAction;
+use App\Application\Actions\Clients\List\ClientListAction;
+use App\Application\Actions\Clients\Register\ClientRegisterAction;
+use App\Application\Actions\Clients\Update\ClientUpdateAction;
+use App\Application\Actions\Companys\Disable\CompanyDisableAction;
+use App\Application\Actions\Companys\List\CompanyListAction;
+use App\Application\Actions\Companys\List\CompanyListByIdAction;
 use App\Application\Actions\Companys\List\CompanyListUserIdAction;
 use App\Application\Actions\Companys\Register\CompanyRegisterAction;
+use App\Application\Actions\Companys\Update\CompanyUpdateAction;
+use App\Application\Actions\Produtcs\Delete\ProductDeleteAction;
+use App\Application\Actions\Produtcs\List\ProductListAction;
+use App\Application\Actions\Produtcs\List\ProductListByIdAction;
+use App\Application\Actions\Produtcs\Register\ProductRegisterAction;
+use App\Application\Actions\Produtcs\Update\ProductUpdateAction;
+use App\Application\Actions\Profissionals\Delete\ProfissionalDeleteAction;
+use App\Application\Actions\Profissionals\List\ProfissionalListAction;
+use App\Application\Actions\Profissionals\List\ProfissionalListByIdAction;
+use App\Application\Actions\Profissionals\Register\ProfissionalRegisterAction;
+use App\Application\Actions\Profissionals\Update\ProfissionalUpdateAction;
+use App\Application\Actions\Agendamentos\Delete\AgendamentoDeleteAction;
+use App\Application\Actions\Agendamentos\List\AgendamentoListAction;
+use App\Application\Actions\Agendamentos\List\AgendamentoListByIdAction;
+use App\Application\Actions\Agendamentos\Register\AgendamentoRegisterAction;
+use App\Application\Actions\Agendamentos\Update\AgendamentoUpdateAction;
+use App\Application\Actions\Services\Delete\ServiceDeleteAction;
+use App\Application\Actions\Services\List\ServiceListAction;
+use App\Application\Actions\Services\List\ServiceListByIdaction;
+use App\Application\Actions\Services\Register\ServiceRegisterAction;
+use App\Application\Actions\Services\Update\ServiceUpdateAction;
 use App\Application\Actions\User\ListUsersAction;
 use App\Application\Actions\User\ViewUserAction;
 use App\Application\Actions\Auth\RegisterAction;
-use App\Application\Actions\Company\RegisterCompanyAction;
-use App\Application\Actions\Company\ListCompaniesAction;
-use App\Application\Actions\Company\ViewCompanyAction;
-use App\Application\Actions\Company\UpdateCompanyAction;
-use App\Application\Actions\Company\DeactivateCompanyAction;
-use App\Application\Actions\Company\GetCompanyByUserAction;
-use App\Application\Actions\Product\RegisterProductAction;
-use App\Application\Actions\Product\ListProductsAction;
-use App\Application\Actions\Product\ViewProductAction;
-use App\Application\Actions\Product\UpdateProductAction;
-use App\Application\Actions\Product\DeleteProductAction;
-use App\Application\Actions\Service\RegisterServiceAction;
-use App\Application\Actions\Service\ListServicesAction;
-use App\Application\Actions\Service\ViewServiceAction;
-use App\Application\Actions\Service\UpdateServiceAction;
-use App\Application\Actions\Service\DeleteServiceAction;
+use App\Application\Middleware\AuthMiddleware;
+use App\Application\Middleware\RoleMiddleware;
+use App\Domain\User\Repositories\UserRepository;
+use App\Application\Actions\Permissions\List\PermissionListAction;
+use App\Application\Actions\Profissionals\Permissions\ProfissionalPermissionsGetAction;
+use App\Application\Actions\Profissionals\Permissions\ProfissionalPermissionsUpdateAction;
+use App\Application\Actions\Settings\Get\SettingsGetAction;
+use App\Application\Actions\Settings\Update\SettingsUpdateAction;
+use App\Application\Actions\Dashboard\Metrics\DashboardMetricsAction;
+use App\Application\Actions\StockMovements\List\StockMovementListByCompanyAction;
+use App\Application\Actions\StockMovements\List\StockMovementListByStockAction;
+use App\Application\Actions\StockMovements\Register\StockMovementRegisterAction;
+use App\Application\Actions\StockMovements\Delete\StockMovementDeleteAction;
+use App\Application\Actions\Notifications\List\NotificationListAction;
+use App\Application\Actions\AppointmentRequests\Register\AppointmentRequestPublicCreateAction;
+use App\Application\Actions\AppointmentRequests\List\AppointmentRequestListAction;
+use App\Application\Actions\AppointmentRequests\Approve\AppointmentRequestApproveAction;
+use App\Application\Actions\AppointmentRequests\Reject\AppointmentRequestRejectAction;
+use App\Application\Actions\AppointmentRequests\Public\AppointmentRequestPublicAvailabilityAction;
+use App\Application\Actions\Public\Company\PublicCompanyInfoAction;
+use App\Application\Actions\Cases\List\CaseListAction;
+use App\Application\Actions\Cases\List\CaseListByIdAction;
+use App\Application\Actions\Cases\Register\CaseRegisterAction;
+use App\Application\Actions\Cases\Update\CaseUpdateAction;
+use App\Application\Actions\Cases\Delete\CaseDeleteAction;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
 use Slim\Interfaces\RouteCollectorProxyInterface as Group;
 
 return function (App $app) {
+    $container = $app->getContainer();
+
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
         return $response;
     });
@@ -37,7 +75,9 @@ return function (App $app) {
     $app->group('/users', function (Group $group) {
         $group->get('', ListUsersAction::class);
         $group->get('/{id}', ViewUserAction::class);
-    });
+    })
+        ->add(new RoleMiddleware($container->get(UserRepository::class), ['ADMIN']))
+        ->add(AuthMiddleware::class);
 
     $app->group('/auth', function (Group $group) {
         $group->post('/register', RegisterAction::class);
@@ -45,27 +85,102 @@ return function (App $app) {
     });
 
     $app->group('/companies', function (Group $group) {
-        $group->get('', ListCompaniesAction::class);
+        $group->get('', CompanyListAction::class);
         $group->post('', CompanyRegisterAction::class);
-        $group->get('/{id}', ViewCompanyAction::class);
-        $group->put('/{id}', UpdateCompanyAction::class);
-        $group->patch('/{id}/inactivate', DeactivateCompanyAction::class);
+        $group->get('/{id}', CompanyListByIdAction::class);
+        $group->put('/{id}', CompanyUpdateAction::class);
+        $group->patch('/{id}/inactivate', CompanyDisableAction::class);
         $group->get('/user/{userId}', CompanyListUserIdAction::class);
-    });
+    })->add(AuthMiddleware::class);
 
     $app->group('/products', function (Group $group) {
-        $group->get('', ListProductsAction::class);
-        $group->post('', RegisterProductAction::class);
-        $group->get('/{id}', ViewProductAction::class);
-        $group->put('/{id}', UpdateProductAction::class);
-        $group->delete('/{id}', DeleteProductAction::class);
-    });
+        $group->get('', ProductListAction::class);
+        $group->post('', ProductRegisterAction::class);
+        $group->get('/{id}', ProductListByIdAction::class);
+        $group->put('/{id}', ProductUpdateAction::class);
+        $group->delete('/{id}', ProductDeleteAction::class);
+    })->add(AuthMiddleware::class);
 
     $app->group('/services', function (Group $group) {
-        $group->get('', ListServicesAction::class);
-        $group->post('', RegisterServiceAction::class);
-        $group->get('/{id}', ViewServiceAction::class);
-        $group->put('/{id}', UpdateServiceAction::class);
-        $group->delete('/{id}', DeleteServiceAction::class);
+        $group->get('/company/{companyId}', ServiceListAction::class);
+        $group->post('', ServiceRegisterAction::class);
+        $group->get('/{id}', ServiceListByIdAction::class);
+        $group->put('/{id}', ServiceUpdateAction::class);
+        $group->delete('/{id}', ServiceDeleteAction::class);
+    })->add(AuthMiddleware::class);
+
+    $app->group('/clients', function (Group $group) {
+        $group->post('', ClientRegisterAction::class);
+        $group->get('', ClientListAction::class);
+        $group->put('/{id}', ClientUpdateAction::class);
+    })->add(AuthMiddleware::class);
+
+    $app->group('/profissionals', function (Group $group) use ($container) {
+        $group->get('', ProfissionalListAction::class);
+        $group->post('', ProfissionalRegisterAction::class);
+        $group->get('/{id}', ProfissionalListByIdAction::class);
+        $group->put('/{id}', ProfissionalUpdateAction::class);
+        $group->delete('/{id}', ProfissionalDeleteAction::class);
+        $group->get('/{id}/permissions', ProfissionalPermissionsGetAction::class)
+            ->add(new RoleMiddleware($container->get(UserRepository::class), ['ADMIN']));
+        $group->put('/{id}/permissions', ProfissionalPermissionsUpdateAction::class)
+            ->add(new RoleMiddleware($container->get(UserRepository::class), ['ADMIN']));
+    })->add(AuthMiddleware::class);
+
+    $app->group('/permissions', function (Group $group) {
+        $group->get('', PermissionListAction::class);
+    })
+        ->add(new RoleMiddleware($container->get(UserRepository::class), ['ADMIN']))
+        ->add(AuthMiddleware::class);
+
+    $app->group('/appointment', function (Group $group) {
+        $group->get('', AgendamentoListAction::class);
+        $group->post('', AgendamentoRegisterAction::class);
+        $group->get('/{id}', AgendamentoListByIdAction::class);
+        $group->put('/{id}', AgendamentoUpdateAction::class);
+        $group->delete('/{id}', AgendamentoDeleteAction::class);
+    })->add(AuthMiddleware::class);
+
+    $app->group('/settings', function (Group $group) {
+        $group->get('', SettingsGetAction::class);
+        $group->put('', SettingsUpdateAction::class);
+    })->add(AuthMiddleware::class);
+
+    $app->group('/dashboard', function (Group $group) {
+        $group->get('/metrics', DashboardMetricsAction::class);
+    })->add(AuthMiddleware::class);
+
+    $app->group('/stockMovements', function (Group $group) {
+        $group->get('/company/{companyId}', StockMovementListByCompanyAction::class);
+        $group->get('/stock/{stockId}', StockMovementListByStockAction::class);
+        $group->post('', StockMovementRegisterAction::class);
+        $group->delete('/{id}', StockMovementDeleteAction::class);
+    })->add(AuthMiddleware::class);
+
+    $app->group('/appointment-requests', function (Group $group) {
+        $group->post('/public', AppointmentRequestPublicCreateAction::class);
+        $group->get('/public/availability', AppointmentRequestPublicAvailabilityAction::class);
+    });
+
+    $app->group('/appointment-requests', function (Group $group) {
+        $group->get('', AppointmentRequestListAction::class);
+        $group->post('/{id}/approve', AppointmentRequestApproveAction::class);
+        $group->post('/{id}/reject', AppointmentRequestRejectAction::class);
+    })->add(AuthMiddleware::class);
+
+    $app->group('/notifications', function (Group $group) {
+        $group->get('', NotificationListAction::class);
+    })->add(AuthMiddleware::class);
+
+    $app->group('/cases', function (Group $group) {
+        $group->get('', CaseListAction::class);
+        $group->post('', CaseRegisterAction::class);
+        $group->get('/{id}', CaseListByIdAction::class);
+        $group->put('/{id}', CaseUpdateAction::class);
+        $group->delete('/{id}', CaseDeleteAction::class);
+    })->add(AuthMiddleware::class);
+
+    $app->group('/public', function (Group $group) {
+        $group->get('/companies/{id}', PublicCompanyInfoAction::class);
     });
 };

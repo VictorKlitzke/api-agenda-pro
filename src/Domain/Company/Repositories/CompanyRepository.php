@@ -48,9 +48,16 @@ class CompanyRepository implements CompanyInterface
         return $row ? $this->mapToEntity((array) $row) : null;
     }
 
-    public function findByUserId(int $userId): ?CompanyEntity
+    public function findByUserId(int $userId): ?int
     {
         $row = $this->connection->table('companies')->where('user_id', $userId)->first();
+        return $row ? (int) $row->id : null;
+    }
+
+    public function findEntityByUserId(int $userId): ?CompanyEntity
+    {
+        $row = $this->connection->table('companies')->where('user_id', $userId)->first();
+
         return $row ? $this->mapToEntity((array) $row) : null;
     }
 

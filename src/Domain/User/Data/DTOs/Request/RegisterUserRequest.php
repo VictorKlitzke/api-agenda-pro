@@ -35,12 +35,14 @@ final class RegisterUserRequest
 
     public static function fromArray(array $data): self
     {
+        $role = $data['tipoConta'] ?? $data['tipo_conta'] ?? $data['role'] ?? '';
+
         return new self(
             $data['name'] ?? '',
             $data['email'] ?? '',
             $data['password'] ?? '',
             $data['cnpjcpf'] ?? '',
-            $data['role'] ?? '',
+            $role,
             $data['phone'] ?? ''
         );
     }
