@@ -53,7 +53,7 @@ A estrutura segue princípios de separação de responsabilidades, com camadas d
 
 Antes de começar, certifique-se de ter instalado:
 
-- PHP 8.0 ou superior
+- PHP 7.4 ou superior (recomendado: PHP 8.0+)
 - Composer
 - MySQL 8.0 ou MariaDB (ou banco de dados compatível)
 - Extensões PHP: mbstring, xml, ctype, json, mysql
