@@ -12,6 +12,7 @@ use App\Application\Actions\Companys\List\CompanyListByIdAction;
 use App\Application\Actions\Companys\List\CompanyListUserIdAction;
 use App\Application\Actions\Companys\Register\CompanyRegisterAction;
 use App\Application\Actions\Companys\Update\CompanyUpdateAction;
+use App\Application\Actions\Companys\Profile\CompanyProfileAction;
 use App\Application\Actions\Produtcs\Delete\ProductDeleteAction;
 use App\Application\Actions\Produtcs\List\ProductListAction;
 use App\Application\Actions\Produtcs\List\ProductListByIdAction;
@@ -95,6 +96,7 @@ return function (App $app) {
         $group->get('', CompanyListAction::class);
         $group->post('', CompanyRegisterAction::class);
         $group->get('/{id}', CompanyListByIdAction::class);
+        $group->get('/{id}/profile', CompanyProfileAction::class);
         $group->put('/{id}', CompanyUpdateAction::class);
         $group->patch('/{id}/inactivate', CompanyDisableAction::class);
         $group->get('/user/{userId}', CompanyListUserIdAction::class);
