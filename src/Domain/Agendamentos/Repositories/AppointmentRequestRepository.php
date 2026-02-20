@@ -21,6 +21,7 @@ final class AppointmentRequestRepository
             'client_email' => $data['client_email'] ?? null,
             'client_phone' => $data['client_phone'] ?? null,
             'service_id' => isset($data['service_id']) ? (int) $data['service_id'] : null,
+            'preferred_professional_id' => isset($data['preferred_professional_id']) ? (int) $data['preferred_professional_id'] : null,
             'preferred_date' => (string) ($data['preferred_date'] ?? ''),
             'preferred_time' => (string) ($data['preferred_time'] ?? ''),
             'notes' => $data['notes'] ?? null,

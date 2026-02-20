@@ -95,6 +95,7 @@ final class AppointmentRequestPublicCreateAction extends Action
             'client_email' => $data['clientEmail'] ?? $data['client_email'] ?? null,
             'client_phone' => $clientPhone,
             'service_id' => isset($data['serviceId']) ? (int) $data['serviceId'] : (isset($data['service_id']) ? (int) $data['service_id'] : null),
+            'preferred_professional_id' => isset($data['professionalId']) ? (int) $data['professionalId'] : (isset($data['professional_id']) ? (int) $data['professional_id'] : null),
             'preferred_date' => $preferredDate,
             'preferred_time' => $preferredTime,
             'notes' => $data['notes'] ?? null,
