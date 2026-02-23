@@ -65,8 +65,6 @@ class UserRepository implements UserInterface
         ];
 
         if ($verificationCode !== null) $data['verification_code'] = $verificationCode;
-        
-
         $this->connection->table('users')->insert($data);
     }
 }

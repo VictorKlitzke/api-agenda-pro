@@ -12,20 +12,21 @@ final class ClientRequest
         public readonly string $phone,
         public readonly ?string $origem
     ) {
-        $this->changePhone(phone: $phone);
+        $this->changePhone($phone);
     }
 
     public function changePhone(string $phone): void {
-        if (strlen($this->phone) < 11) {
-            throw new CustomException("Contanto tem que ter 11 caracteres");
-        }
+        if (strlen($phone) < 11) throw new CustomException("Contato deve ter 11 dígitos", 400);
     }
 
     public static function fromArray(array $data): self
     {
+        $rawPhone = $data['phone'] ?? '';
+        $phone = preg_replace('/\D+/', '', (string) $rawPhone);
+
         return new self(
-            name: $data['name'],
-            phone: $data['phone'] ?? '',
+            name: (string) ($data['name'] ?? ''),
+            phone: $phone,
             origem: $data['origem'] ?? null,
         );
     }

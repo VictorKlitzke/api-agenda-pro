@@ -22,7 +22,7 @@ final class CreateProductTable extends AbstractMigration
             ])
 
             // estoque
-            ->addColumn('stock_quantity', 'integer', ['default' => 0])
+            ->addColumn('quantity', 'integer', ['default' => 0])
             ->addColumn('company_id', 'integer')
             ->addColumn('active', 'boolean', ['default' => true])
 

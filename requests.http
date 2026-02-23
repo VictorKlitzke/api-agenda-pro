@@ -1,17 +1,19 @@
 ### Variáveis
 @host = http://127.0.0.1:8080
-@token =
+@token =ed9d1db297d192001a25b2537f87ffecefb349759215414ed3850784107a43b4
 
+# Auth
 ### Registrar usuário
 POST {{host}}/auth/register
 Content-Type: application/json
 
 {
   "name": "Teste Usuario",
-  "email": "victorklitzke2@gmail.com",
-  "password": "secret",
+  "email": "heitormiranda@gmail.com",
+  "password": "123123",
   "tipoConta": "cliente",
-  "telefone": "11999999999"
+  "telefone": "11999999999",
+  "company_id": 1
 
 }
 
@@ -20,10 +22,11 @@ POST {{host}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "test@example.com",
-  "password": "secret"
+  "email": "heitormiranda@teste.com",
+  "password": "123123"
 }
 
+# Users (admin)
 ### Listar usuários (usar Authorization)
 GET {{host}}/users
 Authorization: Bearer {{token}}
@@ -31,5 +34,365 @@ Authorization: Bearer {{token}}
 ### Ver usuário por id
 GET {{host}}/users/1
 Authorization: Bearer {{token}}
+
+# Companies
+### Listar companies
+GET {{host}}/companies
+Authorization: Bearer {{token}}
+
+### Criar company
+POST {{host}}/companies
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Empresa Exemplo",
+  "cnpj": "00000000000000",
+  "owner_id": 1
+}
+
+### Get company por id
+GET {{host}}/companies/2
+Authorization: Bearer {{token}}
+
+### Company profile
+GET {{host}}/companies/1/profile
+Authorization: Bearer {{token}}
+
+### Atualizar company
+PUT {{host}}/companies/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Empresa Atualizada"
+}
+
+### Inativar company
+PATCH {{host}}/companies/1/inactivate
+Authorization: Bearer {{token}}
+
+### List companies por user
+GET {{host}}/companies/user/2
+Authorization: Bearer {{token}}
+
+# Products
+### List products
+GET {{host}}/products
+Authorization: Bearer {{token}}
+
+### Criar product
+POST {{host}}/products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Produto X",
+  "price": 1000,
+  "company_id": 1
+}
+
+### Get product por id
+GET {{host}}/products/1
+Authorization: Bearer {{token}}
+
+### Atualizar product
+PUT {{host}}/products/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "price": 1200
+}
+
+### Deletar product
+DELETE {{host}}/products/1
+Authorization: Bearer {{token}}
+
+# Services
+### List services por company
+GET {{host}}/services/company/1
+Authorization: Bearer {{token}}
+
+### Criar service
+POST {{host}}/services
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Corte de Cabelo",
+  "duration": 30,
+  "price": 500,
+  "company_id": 1
+}
+
+### Get service por id
+GET {{host}}/services/1
+Authorization: Bearer {{token}}
+
+### Atualizar service
+PUT {{host}}/services/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "price": 600
+}
+
+### Deletar service
+DELETE {{host}}/services/1
+Authorization: Bearer {{token}}
+
+# Clients
+### Registrar client
+POST {{host}}/clients
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Cliente X",
+  "email": "cliente@example.com",
+  "phone": "11999999999",
+  "company_id": 1
+}
+
+### List clients
+GET {{host}}/clients
+Authorization: Bearer {{token}}
+
+### Atualizar client
+PUT {{host}}/clients/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "phone": "11988888888"
+}
+
+# Profissionals
+### List profissionals
+GET {{host}}/profissionals
+Authorization: Bearer {{token}}
+
+### Criar profissional
+POST {{host}}/profissionals
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Profissional A",
+  "company_id": 1
+}
+
+### Get profissional por id
+GET {{host}}/profissionals/1
+Authorization: Bearer {{token}}
+
+### Atualizar profissional
+PUT {{host}}/profissionals/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Profissional Atualizado"
+}
+
+### Deletar profissional
+DELETE {{host}}/profissionals/1
+Authorization: Bearer {{token}}
+
+### Get permissões do profissional
+GET {{host}}/profissionals/1/permissions
+Authorization: Bearer {{token}}
+
+### Atualizar permissões do profissional
+PUT {{host}}/profissionals/1/permissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "permissions": ["SCHEDULE_CREATE", "SCHEDULE_DELETE"]
+}
+
+# Permissions
+### List permissions
+GET {{host}}/permissions
+Authorization: Bearer {{token}}
+
+# Appointment
+### List appointments
+GET {{host}}/appointment
+Authorization: Bearer {{token}}
+
+### Criar appointment
+POST {{host}}/appointment
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "company_id": 1,
+  "service_id": 1,
+  "professional_id": 1,
+  "client_id": 1,
+  "start_time": "2026-03-01T10:00:00"
+}
+
+### Get appointment por id
+GET {{host}}/appointment/1
+Authorization: Bearer {{token}}
+
+### Atualizar appointment
+PUT {{host}}/appointment/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "start_time": "2026-03-01T11:00:00"
+}
+
+### Deletar appointment
+DELETE {{host}}/appointment/1
+Authorization: Bearer {{token}}
+
+# Settings
+### Get settings
+GET {{host}}/settings
+Authorization: Bearer {{token}}
+
+### Update settings
+PUT {{host}}/settings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "timezone": "America/Sao_Paulo"
+}
+
+# Dashboard
+### Metrics
+GET {{host}}/dashboard/metrics
+Authorization: Bearer {{token}}
+
+# Stock Movements
+### List by company
+GET {{host}}/stockMovements/company/1
+Authorization: Bearer {{token}}
+
+### List by stock
+GET {{host}}/stockMovements/stock/1
+Authorization: Bearer {{token}}
+
+### Create stock movement
+POST {{host}}/stockMovements
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "company_id": 1,
+  "product_id": 1,
+  "quantity": 10,
+  "type": "in"
+}
+
+### Delete stock movement
+DELETE {{host}}/stockMovements/1
+Authorization: Bearer {{token}}
+
+# Appointment Requests (public)
+### Public create
+POST {{host}}/appointment-requests/public
+Content-Type: application/json
+
+{
+  "company_id": 1,
+  "service_id": 1,
+  "date": "2026-03-01",
+  "time": "10:00"
+}
+
+### Public availability
+GET {{host}}/appointment-requests/public/availability
+
+# Appointment Requests (auth)
+### List
+GET {{host}}/appointment-requests
+Authorization: Bearer {{token}}
+
+### Approve
+POST {{host}}/appointment-requests/1/approve
+Authorization: Bearer {{token}}
+
+### Reject
+POST {{host}}/appointment-requests/1/reject
+Authorization: Bearer {{token}}
+
+# Notifications
+### List notifications
+GET {{host}}/notifications
+Authorization: Bearer {{token}}
+
+# Billing
+### Create checkout (subscription)
+POST {{host}}/billing/checkout
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "plan": "basic",
+  "companyId": 1
+}
+
+### Billing status
+GET {{host}}/billing/status
+Authorization: Bearer {{token}}
+
+### Billing usage
+GET {{host}}/billing/usage
+Authorization: Bearer {{token}}
+
+### Stripe webhook (public)
+POST {{host}}/billing/webhook
+Content-Type: application/json
+
+{}
+
+# Cases
+### List cases
+GET {{host}}/cases
+Authorization: Bearer {{token}}
+
+### Create case
+POST {{host}}/cases
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Caso X",
+  "description": "Descrição"
+}
+
+### Get case
+GET {{host}}/cases/1
+Authorization: Bearer {{token}}
+
+### Update case
+PUT {{host}}/cases/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Caso Atualizado"
+}
+
+### Delete case
+DELETE {{host}}/cases/1
+Authorization: Bearer {{token}}
+
+# Public companies
+### Public company info
+GET {{host}}/public/companies/1
+
+### Public company list
+GET {{host}}/public/companies
 
 # Dica: após obter o token no response do login, copie-o para a variável `@token` no topo deste arquivo ou use o recurso de ambientes do REST Client.

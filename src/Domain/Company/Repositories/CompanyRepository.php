@@ -54,11 +54,9 @@ class CompanyRepository implements CompanyInterface
         return $row ? (int) $row->id : null;
     }
 
-    public function findEntityByUserId(int $userId): ?CompanyEntity
+    public function findEntityByUserId(int $userId): array
     {
-        $row = $this->connection->table('companies')->where('user_id', $userId)->first();
-
-        return $row ? $this->mapToEntity((array) $row) : null;
+        return $this->connection->table('companies')->where('user_id', $userId)->get()->toArray();
     }
 
     public function findAll(): array
@@ -84,16 +82,16 @@ class CompanyRepository implements CompanyInterface
     private function mapToEntity(array $row): CompanyEntity
     {
         return CompanyEntity::restore(
-            (int) $row['id'],
-            (int) $row['user_id'],
-            (string) $row['name'],
-            (string) ($row['cnpj'] ?? ''),
-            (string) ($row['address'] ?? ''),
-            (string) ($row['city'] ?? ''),
-            (string) ($row['state'] ?? ''),
-            (bool) ($row['active'] ?? true),
-            new \DateTimeImmutable($row['created_at']),
-            isset($row['updated_at']) && $row['updated_at'] ? new \DateTimeImmutable($row['updated_at']) : null
+            id: (int) $row['id'],
+            userId: (int) $row['user_id'],
+            name: (string) $row['name'],
+            cnpj: (string) ($row['cnpj'] ?? ''),
+            address: (string) ($row['address'] ?? ''),
+            city: (string) ($row['city'] ?? ''),
+            state: (string) ($row['state'] ?? ''),
+            active: (bool) ($row['active'] ?? true),
+            createdAt: new \DateTimeImmutable($row['created_at']),
+            updatedAt: isset($row['updated_at']) && $row['updated_at'] ? new \DateTimeImmutable($row['updated_at']) : null
         );
     }
 }

@@ -113,7 +113,7 @@ return function (App $app) {
     $app->group('/services', function (Group $group) {
         $group->get('/company/{companyId}', ServiceListAction::class);
         $group->post('', ServiceRegisterAction::class);
-        $group->get('/{id}', ServiceListByIdAction::class);
+        $group->get('/{id}', ServiceListByIdaction::class);
         $group->put('/{id}', ServiceUpdateAction::class);
         $group->delete('/{id}', ServiceDeleteAction::class);
     })->add(AuthMiddleware::class);
@@ -185,6 +185,8 @@ return function (App $app) {
         $group->post('/checkout', CreateCheckoutSessionAction::class);
         $group->get('/status', CompanyPlanStatusAction::class);
         $group->get('/usage', BillingUsageAction::class);
+        $group->get('/invoices', \App\Application\Actions\Billing\InvoicesListAction::class);
+        $group->get('/invoices/{id}/download', \App\Application\Actions\Billing\InvoiceDownloadAction::class);
     })->add(AuthMiddleware::class);
 
     $app->group('/billing', function (Group $group) {

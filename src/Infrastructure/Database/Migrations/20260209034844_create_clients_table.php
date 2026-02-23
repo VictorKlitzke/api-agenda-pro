@@ -14,6 +14,7 @@ final class CreateClientsTable extends AbstractMigration
             ->addColumn('tenant_id', 'integer')
             ->addColumn('company_id', 'integer')
             ->addColumn('name', 'string', ['limit' => 150])
+            ->addColumn('origem', 'string', ['limit' => 150])
             ->addColumn('phone', 'string', ['limit' => 20])
             ->addColumn('active', 'boolean', ['default' => true])
             ->addColumn('created_at', 'datetime', ['default' => 'CURRENT_TIMESTAMP'])

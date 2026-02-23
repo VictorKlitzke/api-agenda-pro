@@ -15,10 +15,6 @@ use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../../');
 $dotenv->load();
 
-$debug = filter_var($_ENV['APP_DEBUG'] ?? 'false', FILTER_VALIDATE_BOOLEAN);
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
-ini_set('display_errors', $debug ? '1' : '0');
-
 $containerBuilder = new ContainerBuilder();
 
 
@@ -46,9 +42,9 @@ $routes($app);
 /** @var SettingsInterface $settings */
 $settings = $container->get(SettingsInterface::class);
 
-$displayErrorDetails = $settings->get('displayErrorDetails');
-$logError = $settings->get('logError');
-$logErrorDetails = $settings->get('logErrorDetails');
+$displayErrorDetails = (bool) ($settings->get('displayErrorDetails') ?? false);
+$logError = (bool) ($settings->get('logError') ?? true);
+$logErrorDetails = (bool) ($settings->get('logErrorDetails') ?? false);
 
 // Create Request object from globals
 $serverRequestCreator = ServerRequestCreatorFactory::create();

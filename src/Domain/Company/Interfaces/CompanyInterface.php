@@ -9,7 +9,7 @@ interface CompanyInterface
     public function update(CompanyEntity $company): CompanyEntity;
     public function findById(int $id): ?CompanyEntity;
     public function findByUserId(int $userId): ?int;
-    public function findEntityByUserId(int $userId): ?CompanyEntity;
+    public function findEntityByUserId(int $userId): array;
     public function findAll(): array;
     public function updateStatus(int $id, bool $active): void;
 }

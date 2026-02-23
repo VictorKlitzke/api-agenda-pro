@@ -40,6 +40,22 @@ class ClientRepository implements ClientInterface
         return $row ? (array) $row : null;
     }
 
+    /**
+     * Register a client for a specific company and return the inserted id.
+     */
+    public function registerForCompany(string $name, string $phone, ?string $origem, int $companyId): int
+    {
+        return (int) $this->connection->table('clients')->insertGetId([
+            'tenant_id' => $companyId,
+            'company_id' => $companyId,
+            'name' => $name,
+            'phone' => $phone,
+            'origem' => $origem,
+            'active' => 1,
+            'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+        ]);
+    }
+
     public function update(ClientEntity $client): bool
     {
         return $this->connection->table('clients')

@@ -73,7 +73,7 @@ final class CompanyService
         return $res;
     }
 
-    public function findEntityByUserId(int $userId): ?CompanyEntity
+    public function findEntityByUserId(int $userId): array
     {
         return $this->companies->findEntityByUserId(userId: $userId);
     }

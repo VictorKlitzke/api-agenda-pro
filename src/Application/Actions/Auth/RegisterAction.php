@@ -11,21 +11,15 @@ use Psr\Http\Message\ResponseInterface as Response;
 
 final class RegisterAction extends Action
 {
-    private RegisterUserService $service;
-
-    public function __construct(RegisterUserService $service)
-    {
-        $this->service = $service;
-    }
+    
+    public function __construct(private RegisterUserService $service)
+    { }
 
     protected function action(): Response
     {
         $data = (array) $this->getFormData();
-
         $registerRequest = RegisterUserRequest::fromArray($data);
-
         $this->service->execute($registerRequest);
-
         return $this->respondWithData(['message' => 'Usuário registrado com sucesso'], 201);
     }
 }
