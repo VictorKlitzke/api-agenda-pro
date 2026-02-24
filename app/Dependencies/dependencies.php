@@ -64,6 +64,66 @@ return function (ContainerBuilder $containerBuilder) {
             return $dispatcher;
         },
 
+        \App\Domain\Shared\Interfaces\WhatsappNotifierInterface::class => function () {
+            $enabled = filter_var($_ENV['WHATSAPP_ENABLED'] ?? 'false', FILTER_VALIDATE_BOOLEAN);
+            $provider = strtolower(trim((string) ($_ENV['WHATSAPP_PROVIDER'] ?? 'unofficial_api')));
+            $defaultCountryCode = trim((string) ($_ENV['WHATSAPP_DEFAULT_COUNTRY_CODE'] ?? '55'));
+
+            if (!$enabled) {
+                return new \App\Infrastructure\Notifications\WhatsApp\NullWhatsappNotifier();
+            }
+
+            if ($provider === 'infobip') {
+                $baseUrl = trim((string) ($_ENV['WHATSAPP_INFOBIP_BASE_URL'] ?? ''));
+                $apiKey = trim((string) ($_ENV['WHATSAPP_INFOBIP_API_KEY'] ?? ''));
+                $sender = trim((string) ($_ENV['WHATSAPP_INFOBIP_SENDER'] ?? ''));
+                $callbackData = trim((string) ($_ENV['WHATSAPP_INFOBIP_CALLBACK_DATA'] ?? ''));
+
+                if ($baseUrl === '' || $apiKey === '' || $sender === '') {
+                    return new \App\Infrastructure\Notifications\WhatsApp\NullWhatsappNotifier();
+                }
+
+                return new \App\Infrastructure\Notifications\WhatsApp\InfobipWhatsappNotifier(
+                    $baseUrl,
+                    $apiKey,
+                    $sender,
+                    $defaultCountryCode,
+                    $callbackData
+                );
+            }
+
+            $endpoint = trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_ENDPOINT'] ?? ''));
+            $token = trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_TOKEN'] ?? ''));
+            $tokenHeader = trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_TOKEN_HEADER'] ?? 'Authorization'));
+            $tokenPrefix = trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_TOKEN_PREFIX'] ?? 'Bearer'));
+            $phoneField = trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_PHONE_FIELD'] ?? 'number'));
+            $messageField = trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_MESSAGE_FIELD'] ?? 'text'));
+            $extraPayloadRaw = trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_EXTRA_PAYLOAD_JSON'] ?? ''));
+
+            $extraPayload = [];
+            if ($extraPayloadRaw !== '') {
+                $decoded = json_decode($extraPayloadRaw, true);
+                if (is_array($decoded)) {
+                    $extraPayload = $decoded;
+                }
+            }
+
+            if ($provider !== 'unofficial_api' || $endpoint === '') {
+                return new \App\Infrastructure\Notifications\WhatsApp\NullWhatsappNotifier();
+            }
+
+            return new \App\Infrastructure\Notifications\WhatsApp\UnofficialApiWhatsappNotifier(
+                $endpoint,
+                $token,
+                $tokenHeader,
+                $tokenPrefix,
+                $phoneField,
+                $messageField,
+                $extraPayload,
+                $defaultCountryCode
+            );
+        },
+
         \App\Application\Middleware\PlanLimitMiddleware::class => function (ContainerInterface $c) {
             return new \App\Application\Middleware\PlanLimitMiddleware(
                 $c->get(\App\Domain\Company\Repositories\CompanyRepository::class),

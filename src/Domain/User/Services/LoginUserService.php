@@ -47,6 +47,8 @@ final class LoginUserService
             session_start();
         }
 
+        session_regenerate_id(true);
+
         $_SESSION['user_id'] = $user->id();
         $_SESSION['access_token'] = $token;
 

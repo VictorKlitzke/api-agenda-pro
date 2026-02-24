@@ -43,6 +43,10 @@ class CorsMiddleware
             return null;
         }
 
+        if ($this->isLocalDevelopmentOrigin($origin)) {
+            return $origin;
+        }
+
         if (empty($this->allowedOrigins) || in_array('*', $this->allowedOrigins, true)) {
             return '*';
         }
@@ -52,6 +56,32 @@ class CorsMiddleware
         }
 
         return null;
+    }
+
+    private function isLocalDevelopmentOrigin(string $origin): bool
+    {
+        $appEnv = strtolower((string) ($_ENV['APP_ENV'] ?? ''));
+        if ($appEnv !== 'local') {
+            return false;
+        }
+
+        $parts = parse_url($origin);
+        if (!is_array($parts)) {
+            return false;
+        }
+
+        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+        $host = strtolower((string) ($parts['host'] ?? ''));
+
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            return false;
+        }
+
+        if ($host === 'localhost' || $host === '127.0.0.1') {
+            return true;
+        }
+
+        return str_starts_with($host, '192.168.');
     }
 
     private function withCorsHeaders(Response $response, ?string $origin): Response

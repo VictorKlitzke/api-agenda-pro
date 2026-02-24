@@ -5,7 +5,7 @@ namespace App\Domain\Auth\Repositories;
 
 use Illuminate\Database\Connection;
 
-final class UserTokenRepository
+class UserTokenRepository
 {
     public function __construct(private Connection $connection) {}
 
@@ -26,5 +26,10 @@ final class UserTokenRepository
             ->first();
 
         return $row ? (int)$row->user_id : null;
+    }
+
+    public function revokeToken(string $token): void
+    {
+        $this->connection->table('user_tokens')->where('token', $token)->delete();
     }
 }

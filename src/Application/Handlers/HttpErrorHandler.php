@@ -26,6 +26,7 @@ class HttpErrorHandler extends SlimErrorHandler
     protected function respond(): Response
     {
         $exception = $this->exception;
+        $requestId = (string) ($_SERVER['APP_REQUEST_ID'] ?? $_SERVER['HTTP_X_REQUEST_ID'] ?? '');
 
         // Default internal server error
         $statusCode = 500;
@@ -38,7 +39,11 @@ class HttpErrorHandler extends SlimErrorHandler
         if ($exception instanceof CustomException) {
             $statusCode = $exception->getStatusCode();
             $error->setDescription($exception->getMessage());
-            $payload = new ActionPayload($statusCode, ['errors' => $exception->getErrors()], $error);
+            $payloadData = ['errors' => $exception->getErrors()];
+            if ($requestId !== '') {
+                $payloadData['request_id'] = $requestId;
+            }
+            $payload = new ActionPayload($statusCode, $payloadData, $error);
         } else {
             if ($exception instanceof HttpException) {
                 $statusCode = $exception->getCode();
@@ -67,7 +72,7 @@ class HttpErrorHandler extends SlimErrorHandler
                 $error->setDescription($exception->getMessage());
             }
 
-            $payload = new ActionPayload($statusCode, null, $error);
+            $payload = new ActionPayload($statusCode, $requestId !== '' ? ['request_id' => $requestId] : null, $error);
         }
         $encodedPayload = json_encode($payload, JSON_PRETTY_PRINT);
 
@@ -75,6 +80,9 @@ class HttpErrorHandler extends SlimErrorHandler
         $response->getBody()->write($encodedPayload);
 
         $response = $response->withHeader('Content-Type', 'application/json');
+        if ($requestId !== '') {
+            $response = $response->withHeader('X-Request-Id', $requestId);
+        }
 
         return $this->withCorsHeaders($response);
     }
@@ -84,6 +92,10 @@ class HttpErrorHandler extends SlimErrorHandler
         $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
         if ($origin === '') {
             return $response;
+        }
+
+        if ($this->isLocalDevelopmentOrigin($origin)) {
+            return $this->applyCorsHeaders($response, $origin);
         }
 
         $allowedOrigins = array_values(array_filter(array_map(
@@ -102,6 +114,11 @@ class HttpErrorHandler extends SlimErrorHandler
             return $response;
         }
 
+        return $this->applyCorsHeaders($response, $resolvedOrigin);
+    }
+
+    private function applyCorsHeaders(Response $response, string $resolvedOrigin): Response
+    {
         $response = $response
             ->withHeader('Access-Control-Allow-Origin', $resolvedOrigin)
             ->withHeader('Access-Control-Allow-Headers', $_ENV['CORS_ALLOWED_HEADERS'] ?? 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
@@ -117,5 +134,31 @@ class HttpErrorHandler extends SlimErrorHandler
         }
 
         return $response;
+    }
+
+    private function isLocalDevelopmentOrigin(string $origin): bool
+    {
+        $appEnv = strtolower((string) ($_ENV['APP_ENV'] ?? ''));
+        if ($appEnv !== 'local') {
+            return false;
+        }
+
+        $parts = parse_url($origin);
+        if (!is_array($parts)) {
+            return false;
+        }
+
+        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+        $host = strtolower((string) ($parts['host'] ?? ''));
+
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            return false;
+        }
+
+        if ($host === 'localhost' || $host === '127.0.0.1') {
+            return true;
+        }
+
+        return str_starts_with($host, '192.168.');
     }
 }

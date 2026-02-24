@@ -22,13 +22,8 @@ final class LoginUserAction extends Action
         $user = $this->service->execute($loginRequest);
 
         if (!$user) return $this->respondWithData(['error' => 'Credenciais inválidas'], 401);
-        
-
-        $token = null;
-        $token = $_SESSION['access_token'] ?? session_id();
 
         return $this->respondWithData([
-            'accessToken' => $token,
             'user' => [
                 'id' => $user->id(),
                 'name' => $user->name(),

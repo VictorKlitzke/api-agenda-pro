@@ -1,6 +1,9 @@
 ### Variáveis
 @host = http://127.0.0.1:8080
-@token =ed9d1db297d192001a25b2537f87ffecefb349759215414ed3850784107a43b4
+@token =
+
+# Fluxo recomendado: sessão por cookie (login -> chamadas protegidas -> logout)
+# O token Bearer abaixo fica como fallback/legado para testes manuais.
 
 # Auth
 ### Registrar usuário
@@ -17,7 +20,7 @@ Content-Type: application/json
 
 }
 
-### Login (retorna token)
+### Login (inicia sessão cookie)
 POST {{host}}/auth/login
 Content-Type: application/json
 
@@ -25,6 +28,12 @@ Content-Type: application/json
   "email": "heitormiranda@teste.com",
   "password": "123123"
 }
+
+### Usuário autenticado (cookie de sessão)
+GET {{host}}/auth/me
+
+### Logout (encerra sessão cookie)
+POST {{host}}/auth/logout
 
 # Users (admin)
 ### Listar usuários (usar Authorization)
@@ -395,4 +404,5 @@ GET {{host}}/public/companies/1
 ### Public company list
 GET {{host}}/public/companies
 
-# Dica: após obter o token no response do login, copie-o para a variável `@token` no topo deste arquivo ou use o recurso de ambientes do REST Client.
+# Dica: execute primeiro o login e mantenha cookie jar habilitado no REST Client.
+# Para fallback legado por Bearer, preencha @token manualmente e use os headers Authorization já existentes.

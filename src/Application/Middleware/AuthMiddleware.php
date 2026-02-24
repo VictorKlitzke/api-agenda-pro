@@ -23,14 +23,13 @@ final class AuthMiddleware implements Middleware
             return $handler->handle($request);
         }
 
-        $authHeader = $request->getHeaderLine('Authorization');
-        if ($authHeader === '' || !str_starts_with($authHeader, 'Bearer ')) {
-            throw new HttpUnauthorizedException($request, 'Token ausente');
+        if (session_status() !== PHP_SESSION_ACTIVE && !headers_sent()) {
+            session_start();
         }
 
-        $token = trim(substr($authHeader, 7));
-        if ($token === '') {
-            throw new HttpUnauthorizedException($request, 'Token inválido');
+        $token = $this->resolveTokenFromSessionOrHeader($request);
+        if ($token === null) {
+            throw new HttpUnauthorizedException($request, 'Sessão não autenticada');
         }
 
         $userId = $this->tokens->findUserByToken($token);
@@ -38,6 +37,32 @@ final class AuthMiddleware implements Middleware
             throw new HttpUnauthorizedException($request, 'Token expirado ou inválido');
         }
 
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            $_SESSION['user_id'] = $userId;
+            $_SESSION['access_token'] = $token;
+        }
+
         return $handler->handle($request->withAttribute('userId', $userId));
+    }
+
+    private function resolveTokenFromSessionOrHeader(Request $request): ?string
+    {
+        $sessionToken = $_SESSION['access_token'] ?? null;
+        if (is_string($sessionToken) && trim($sessionToken) !== '') {
+            return trim($sessionToken);
+        }
+
+        $allowBearerFallback = filter_var($_ENV['AUTH_ALLOW_BEARER_FALLBACK'] ?? 'false', FILTER_VALIDATE_BOOLEAN);
+        if (!$allowBearerFallback) {
+            return null;
+        }
+
+        $authHeader = $request->getHeaderLine('Authorization');
+        if ($authHeader === '' || !str_starts_with($authHeader, 'Bearer ')) {
+            return null;
+        }
+
+        $token = trim(substr($authHeader, 7));
+        return $token !== '' ? $token : null;
     }
 }
