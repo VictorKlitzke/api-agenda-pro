@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Application\Actions\Auth\LoginUserAction;
 use App\Application\Actions\Auth\CurrentUserAction;
 use App\Application\Actions\Auth\LogoutUserAction;
+use App\Application\Actions\Auth\VerifyEmailCodeAction;
 use App\Application\Actions\Clients\List\ClientListAction;
 use App\Application\Actions\Clients\Register\ClientRegisterAction;
 use App\Application\Actions\Clients\Update\ClientUpdateAction;
@@ -91,6 +92,7 @@ return function (App $app) {
 
     $app->group('/auth', function (Group $group) {
         $group->post('/register', RegisterAction::class);
+        $group->post('/verify-email', VerifyEmailCodeAction::class);
         $group->post('/login', LoginUserAction::class);
         $group->get('/me', CurrentUserAction::class)->add(AuthMiddleware::class);
         $group->post('/logout', LogoutUserAction::class)->add(AuthMiddleware::class);

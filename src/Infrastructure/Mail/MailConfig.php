@@ -5,6 +5,7 @@ namespace App\Infrastructure\Mail;
 final class MailConfig
 {
     public function __construct(
+        public readonly bool $enabled,
         public readonly string $from,
         public readonly string $host,
         public readonly int $port,

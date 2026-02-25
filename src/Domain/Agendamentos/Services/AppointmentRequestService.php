@@ -86,7 +86,9 @@ final class AppointmentRequestService
         );
 
         try {
-            $sent = $this->whatsapp->sendText($phone, $message);
+            $sent = $this->whatsapp->sendText($phone, $message, [
+                'companyId' => (int) ($request['company_id'] ?? 0),
+            ]);
             if (!$sent) {
                 $this->logger->warning('whatsapp_notification_not_sent', [
                     'phone' => $phone,

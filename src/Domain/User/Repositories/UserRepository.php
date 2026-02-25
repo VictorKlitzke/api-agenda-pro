@@ -60,11 +60,26 @@ class UserRepository implements UserInterface
             'tipo_conta' => $user->tipoConta(),
             'telefone' => $user->telefone(),
             'zip_code' => $user->zipCode(),
-            'active' => 1,
+            'active' => $user->isActive() ? 1 : 0,
             'created_at' => $user->createdAt()->format('Y-m-d H:i:s'),
         ];
 
         if ($verificationCode !== null) $data['verification_code'] = $verificationCode;
         $this->connection->table('users')->insert($data);
+    }
+
+    public function verifyEmailCode(string $email, string $verificationCode): bool
+    {
+        $updated = $this->connection
+            ->table('users')
+            ->where('email', $email)
+            ->where('verification_code', $verificationCode)
+            ->where('active', 0)
+            ->update([
+                'active' => 1,
+                'verification_code' => null,
+            ]);
+
+        return $updated > 0;
     }
 }

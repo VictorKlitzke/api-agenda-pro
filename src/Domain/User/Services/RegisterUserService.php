@@ -8,6 +8,7 @@ use App\Domain\User\Events\UserRegisteredEvent;
 use App\Domain\User\Repositories\UserRepository;
 use App\Domain\User\Data\DTOs\Request\RegisterUserRequest;
 use App\Infrastructure\Events\EventDispatcher;
+use App\Infrastructure\Exceptions\ValidationException;
 
 final class RegisterUserService
 {
@@ -19,6 +20,13 @@ final class RegisterUserService
 
     public function execute(RegisterUserRequest $request): void
     {
+        $existing = $this->users->findByEmail($request->email());
+        if ($existing !== null) {
+            throw new ValidationException([
+                'email' => 'Email já cadastrado.',
+            ]);
+        }
+
         $verificationCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         $user = UserEntity::create(
@@ -30,10 +38,19 @@ final class RegisterUserService
             zipCode: $verificationCode
         );
 
-        // $this->dispatcher->dispatch(new UserRegisteredEvent(userId: $user->id(), 
-        // name: $user->name(), email: $user->email(), verificationCode: $verificationCode));
+        $user->deactivate();
 
         $this->users->save(user: $user, verificationCode: $verificationCode);
+
+        try {
+            $this->dispatcher->dispatch(new UserRegisteredEvent(
+                userId: $user->id(),
+                name: $user->name(),
+                email: $user->email(),
+                verificationCode: $verificationCode
+            ));
+        } catch (\Throwable) {
+        }
 
     }
 }

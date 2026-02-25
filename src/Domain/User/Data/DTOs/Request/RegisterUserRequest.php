@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Domain\User\Data\DTOs\Request;
 
-use Doctrine\DBAL\Exception\InvalidArgumentException;
+use App\Infrastructure\Exceptions\ValidationException;
 
 final class RegisterUserRequest
 {
@@ -20,16 +20,30 @@ final class RegisterUserRequest
 
     private function validate(): void
     {
+        $errors = [];
+
         if (strlen(trim($this->name)) < 3) {
-            throw new InvalidArgumentException('Nome inválido.');
+            $errors['name'] = 'Nome inválido.';
         }
 
         if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
-            throw new InvalidArgumentException('Email inválido.');
+            $errors['email'] = 'Email inválido.';
         }
 
         if (strlen($this->password) < 6) {
-            throw new InvalidArgumentException('Senha deve ter no mínimo 6 caracteres.');
+            $errors['password'] = 'Senha deve ter no mínimo 6 caracteres.';
+        }
+
+        if (strlen(trim($this->cnpjcpf)) < 11) {
+            $errors['cnpjcpf'] = 'Documento inválido.';
+        }
+
+        if (strlen(trim($this->telefone)) < 10) {
+            $errors['phone'] = 'Telefone inválido.';
+        }
+
+        if (!empty($errors)) {
+            throw new ValidationException($errors);
         }
     }
 

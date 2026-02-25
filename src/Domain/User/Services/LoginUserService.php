@@ -37,6 +37,10 @@ final class LoginUserService
             return null;
         }
 
+        if (!$user->isActive()) {
+            return null;
+        }
+
         $this->attempts->resetAttempts($email);
 
         $token = bin2hex(random_bytes(32));

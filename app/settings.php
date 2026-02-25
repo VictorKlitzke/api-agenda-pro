@@ -32,11 +32,13 @@ return function (ContainerBuilder $containerBuilder) {
                     'allowed_methods' => $_ENV['CORS_ALLOWED_METHODS'] ?? 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
                 ],
                 'mail' => [
+                    'enabled' => filter_var($_ENV['MAIL_ENABLED'] ?? 'true', FILTER_VALIDATE_BOOLEAN),
                     'from' => $_ENV['MAIL_FROM'] ?? null,
                     'smtp_host' => $_ENV['MAIL_SMTP_HOST'] ?? null,
                     'smtp_port' => $_ENV['MAIL_SMTP_PORT'] ?? null,
                     'smtp_user' => $_ENV['MAIL_SMTP_USER'] ?? null,
                     'smtp_password' => $_ENV['MAIL_SMTP_PASSWORD'] ?? null,
+                    'secure' => $_ENV['MAIL_SMTP_SECURE'] ?? 'tls',
                 ],
             ]);
         }

@@ -27,12 +27,23 @@ final class PHPMailerMailer implements MailerInterface
             $this->mailer->isSMTP();
             $this->mailer->Host = $host;
             $this->mailer->Port = $port;
-            $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $this->mailer->SMTPAuth = true;
-            $this->mailer->Username = $username;
+            $this->mailer->Timeout = 8;
+            $this->mailer->SMTPDebug = SMTP::DEBUG_OFF;
+
+            $secureMode = strtolower(trim($encryption));
+            if ($secureMode === 'ssl') {
+                $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+            } elseif ($secureMode === 'tls') {
+                $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            } else {
+                $this->mailer->SMTPSecure = '';
+                $this->mailer->SMTPAutoTLS = false;
+            }
+
+            $this->mailer->SMTPAuth = !empty($username);
+            $this->mailer->Username = $username ?? '';
             $this->mailer->Password = $password ?? '';
 
-            // Desabilita verificação de certificado SSL (dev only)
             $this->mailer->SMTPOptions = [
                 'ssl' => [
                     'verify_peer' => false,

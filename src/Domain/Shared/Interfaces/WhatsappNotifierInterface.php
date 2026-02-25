@@ -6,5 +6,5 @@ namespace App\Domain\Shared\Interfaces;
 
 interface WhatsappNotifierInterface
 {
-    public function sendText(string $phone, string $message): bool;
+    public function sendText(string $phone, string $message, array $metadata = []): bool;
 }

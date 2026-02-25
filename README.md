@@ -63,21 +63,4 @@ Configure as variáveis abaixo em `.env`:
 
 Quando uma solicitação de agendamento é aprovada, a API tenta enviar mensagem WhatsApp para o telefone do cliente (`client_phone`).
 
-Variáveis:
-
-- `WHATSAPP_ENABLED`
-- `WHATSAPP_PROVIDER` (`infobip` ou `unofficial_api`)
-- `WHATSAPP_INFOBIP_BASE_URL` (ex.: `https://xxxx.api.infobip.com`)
-- `WHATSAPP_INFOBIP_API_KEY`
-- `WHATSAPP_INFOBIP_SENDER`
-- `WHATSAPP_INFOBIP_CALLBACK_DATA` (opcional)
-- `WHATSAPP_UNOFFICIAL_ENDPOINT`
-- `WHATSAPP_UNOFFICIAL_TOKEN`
-- `WHATSAPP_UNOFFICIAL_TOKEN_HEADER`
-- `WHATSAPP_UNOFFICIAL_TOKEN_PREFIX`
-- `WHATSAPP_UNOFFICIAL_PHONE_FIELD`
-- `WHATSAPP_UNOFFICIAL_MESSAGE_FIELD`
-- `WHATSAPP_UNOFFICIAL_EXTRA_PAYLOAD_JSON` (JSON opcional para campos fixos)
-- `WHATSAPP_DEFAULT_COUNTRY_CODE`
-
 Se a integração estiver desabilitada ou falhar, a aprovação continua normalmente e o evento é registrado em log.
