@@ -67,6 +67,38 @@ return function (ContainerBuilder $containerBuilder) {
 
             return $dispatcher;
         },
+
+        \App\Domain\Shared\Interfaces\WhatsappNotifierInterface::class => function (ContainerInterface $c) {
+            $enabled = filter_var($_ENV['WHATSAPP_ENABLED'] ?? 'false', FILTER_VALIDATE_BOOLEAN);
+            if (!$enabled) {
+                return new \App\Infrastructure\Whatsapp\NullWhatsappNotifier();
+            }
+
+            $provider = trim((string) ($_ENV['WHATSAPP_PROVIDER'] ?? 'unofficial_api'));
+            $extraPayloadRaw = trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_EXTRA_PAYLOAD_JSON'] ?? ''));
+            $extraPayload = [];
+
+            if ($extraPayloadRaw !== '') {
+                $decoded = json_decode($extraPayloadRaw, true);
+                if (is_array($decoded)) {
+                    $extraPayload = $decoded;
+                }
+            }
+
+            return new \App\Infrastructure\Whatsapp\HttpWhatsappNotifier(
+                logger: $c->get(LoggerInterface::class),
+                enabled: $enabled,
+                provider: $provider,
+                endpoint: trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_ENDPOINT'] ?? '')),
+                phoneField: trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_PHONE_FIELD'] ?? 'number')),
+                messageField: trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_MESSAGE_FIELD'] ?? 'text')),
+                token: trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_TOKEN'] ?? '')),
+                tokenHeader: trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_TOKEN_HEADER'] ?? 'Authorization')),
+                tokenPrefix: trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_TOKEN_PREFIX'] ?? 'Bearer')),
+                extraPayload: $extraPayload,
+                timeoutSeconds: max(3, (int) ($_ENV['WHATSAPP_TIMEOUT_SECONDS'] ?? 10)),
+            );
+        },
         
         \App\Application\Middleware\PlanLimitMiddleware::class => function (ContainerInterface $c) {
             return new \App\Application\Middleware\PlanLimitMiddleware(
