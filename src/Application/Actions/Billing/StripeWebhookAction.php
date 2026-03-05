@@ -41,6 +41,7 @@ final class StripeWebhookAction extends Action
         match ($type) {
             'checkout.session.completed'    => $this->handleCheckoutCompleted($event->data->object),
             'invoice.paid'                  => $this->handleInvoicePaid($event->data->object),
+            'invoice_payment.paid'          => $this->handleInvoicePaymentPaid($event->data->object),
             'invoice.payment_failed'        => $this->handleInvoicePaymentFailed($event->data->object),
             'customer.subscription.updated' => $this->handleSubscriptionEvent($event->data->object),
             'customer.subscription.deleted' => $this->handleSubscriptionEvent($event->data->object),
@@ -49,6 +50,11 @@ final class StripeWebhookAction extends Action
 
         return $this->respondWithData(['received' => true]);
     }
+
+    // -------------------------------------------------------------------------
+    // checkout.session.completed
+    // Salva como "pending" — o invoice.paid é quem ativa o plano.
+    // -------------------------------------------------------------------------
     private function handleCheckoutCompleted(object $session): void
     {
         $companyId      = (int)    ($session->metadata->company_id ?? $session->client_reference_id ?? 0);
@@ -76,6 +82,12 @@ final class StripeWebhookAction extends Action
             'current_period_end'     => null,
         ]);
     }
+
+    // -------------------------------------------------------------------------
+    // invoice.paid
+    // Pagamento confirmado — ativa o plano com status e período corretos.
+    // Cobre tanto a primeira compra quanto renovações futuras.
+    // -------------------------------------------------------------------------
     private function handleInvoicePaid(object $invoice): void
     {
         $subscriptionId = (string) ($invoice->subscription ?? '');
@@ -118,6 +130,43 @@ final class StripeWebhookAction extends Action
         ]);
     }
 
+    // -------------------------------------------------------------------------
+    // invoice_payment.paid (API >= 2025-09-30.clover)
+    // Novo evento que substitui invoice.paid em versões recentes da API.
+    // Busca a invoice para reutilizar o mesmo fluxo do invoice.paid.
+    // -------------------------------------------------------------------------
+    private function handleInvoicePaymentPaid(object $invoicePayment): void
+    {
+        $invoiceId  = (string) ($invoicePayment->invoice  ?? '');
+        $customerId = (string) ($invoicePayment->payment->payment_intent ?? '');
+
+        if ($invoiceId === '') {
+            $this->logger->info('invoice_payment.paid: sem invoice_id, ignorando');
+            return;
+        }
+
+        $secret = (string) ($_ENV['STRIPE_SECRET_KEY'] ?? '');
+        if ($secret === '') {
+            $this->logger->error('STRIPE_SECRET_KEY não configurado');
+            return;
+        }
+
+        try {
+            $stripe  = new StripeClient($secret);
+            $invoice = $stripe->invoices->retrieve($invoiceId, []);
+            $this->handleInvoicePaid($invoice);
+        } catch (\Throwable $e) {
+            $this->logger->error('invoice_payment.paid: erro ao buscar invoice', [
+                'message'    => $e->getMessage(),
+                'invoice_id' => $invoiceId,
+            ]);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // invoice.payment_failed
+    // Marca o plano como "past_due" para exibir aviso na UI.
+    // -------------------------------------------------------------------------
     private function handleInvoicePaymentFailed(object $invoice): void
     {
         $subscriptionId = (string) ($invoice->subscription ?? '');
@@ -153,6 +202,10 @@ final class StripeWebhookAction extends Action
         ]);
     }
 
+    // -------------------------------------------------------------------------
+    // customer.subscription.updated / deleted
+    // Sincroniza mudanças de plano, cancelamentos e status.
+    // -------------------------------------------------------------------------
     private function handleSubscriptionEvent(object $subscription): void
     {
         $companyId      = (int)    ($subscription->metadata->company_id ?? 0);
@@ -185,6 +238,10 @@ final class StripeWebhookAction extends Action
             'current_period_end'     => $periodEnd?->format('Y-m-d H:i:s'),
         ]);
     }
+
+    // -------------------------------------------------------------------------
+    // Helper: busca subscription na API do Stripe
+    // -------------------------------------------------------------------------
     private function retrieveSubscription(string $subscriptionId): ?object
     {
         $secret = (string) ($_ENV['STRIPE_SECRET_KEY'] ?? '');
