@@ -50,7 +50,11 @@ class CompanyRepository implements CompanyInterface
 
     public function findByUserId(int $userId): ?int
     {
-        $row = $this->connection->table('companies')->where('user_id', $userId)->first();
+        $row = $this->connection->table('companies')
+            ->where('user_id', $userId)
+            ->orderByDesc('id')
+            ->first();
+
         return $row ? (int) $row->id : null;
     }
 
