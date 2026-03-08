@@ -6,7 +6,7 @@ namespace App\Domain\Agendamentos\Services;
 
 use App\Domain\Agendamentos\Data\DTOs\Request\AgendamentoRequest;
 use App\Domain\Agendamentos\Repositories\AppointmentRequestRepository;
-use App\Infrastructure\Whatsapp\HttpWhatsappNotifier;
+use App\Domain\Shared\Interfaces\WhatsappNotifierInterface;
 use Psr\Log\LoggerInterface;
 
 final class AppointmentRequestService
@@ -14,7 +14,7 @@ final class AppointmentRequestService
     public function __construct(
         private readonly AppointmentRequestRepository $repository,
         private readonly AgendamentoService $agendamentoService,
-        private readonly HttpWhatsappNotifier $whatsapp,
+        private readonly WhatsappNotifierInterface $whatsapp,
         private readonly LoggerInterface $logger
     ) {}
 
