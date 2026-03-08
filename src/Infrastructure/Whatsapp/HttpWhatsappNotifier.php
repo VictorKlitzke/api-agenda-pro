@@ -21,6 +21,7 @@ final class HttpWhatsappNotifier implements WhatsappNotifierInterface
         private readonly string $tokenPrefix,
         private readonly array $extraPayload,
         private readonly int $timeoutSeconds,
+        private readonly string $defaultCountryCode,
     ) {}
 
     public function sendText(string $phone, string $message, array $metadata = []): bool
@@ -29,7 +30,7 @@ final class HttpWhatsappNotifier implements WhatsappNotifierInterface
             return false;
         }
 
-        $normalizedPhone = preg_replace('/\D+/', '', $phone) ?: '';
+        $normalizedPhone = $this->normalizePhone($phone);
         $trimmedMessage = trim($message);
 
         if ($normalizedPhone === '' || $trimmedMessage === '') {
@@ -97,6 +98,30 @@ final class HttpWhatsappNotifier implements WhatsappNotifierInterface
             ]);
             return false;
         }
+    }
+
+    private function normalizePhone(string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', $phone) ?: '';
+        if ($digits === '') {
+            return '';
+        }
+
+        $countryCode = preg_replace('/\D+/', '', $this->defaultCountryCode) ?: '';
+        if ($countryCode === '') {
+            return $digits;
+        }
+
+        if (str_starts_with($digits, $countryCode)) {
+            return $digits;
+        }
+
+        // BR common local formats without DDI: 10 or 11 digits (landline/mobile with area code).
+        if (strlen($digits) === 10 || strlen($digits) === 11) {
+            return $countryCode . $digits;
+        }
+
+        return $digits;
     }
 
     private function normalizeEndpoint(string $endpoint): string

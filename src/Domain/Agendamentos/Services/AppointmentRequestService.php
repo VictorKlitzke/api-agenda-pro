@@ -63,6 +63,11 @@ final class AppointmentRequestService
     {
         $phone = trim((string) ($request['client_phone'] ?? ''));
         if ($phone === '') {
+            $this->logger->warning('whatsapp_notification_skipped_missing_phone', [
+                'request_id' => (int) ($request['id'] ?? 0),
+                'company_id' => (int) ($request['company_id'] ?? 0),
+                'appointment_id' => (int) ($appointment['id'] ?? 0),
+            ]);
             return;
         }
 
@@ -86,9 +91,25 @@ final class AppointmentRequestService
         );
 
         try {
+            $this->logger->info('whatsapp_notification_attempt', [
+                'phone' => $phone,
+                'request_id' => (int) ($request['id'] ?? 0),
+                'company_id' => (int) ($request['company_id'] ?? 0),
+                'appointment_id' => (int) ($appointment['id'] ?? 0),
+            ]);
+
             $sent = $this->whatsapp->sendText($phone, $message, [
                 'companyId' => (int) ($request['company_id'] ?? 0),
             ]);
+
+            $this->logger->info('whatsapp_notification_result', [
+                'sent' => $sent,
+                'phone' => $phone,
+                'request_id' => (int) ($request['id'] ?? 0),
+                'company_id' => (int) ($request['company_id'] ?? 0),
+                'appointment_id' => (int) ($appointment['id'] ?? 0),
+            ]);
+
             if (!$sent) {
                 $this->logger->warning('whatsapp_notification_not_sent', [
                     'phone' => $phone,

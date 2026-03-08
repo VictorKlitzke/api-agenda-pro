@@ -97,6 +97,7 @@ return function (ContainerBuilder $containerBuilder) {
                 tokenPrefix: trim((string) ($_ENV['WHATSAPP_UNOFFICIAL_TOKEN_PREFIX'] ?? 'Bearer')),
                 extraPayload: $extraPayload,
                 timeoutSeconds: max(3, (int) ($_ENV['WHATSAPP_TIMEOUT_SECONDS'] ?? 10)),
+                defaultCountryCode: trim((string) ($_ENV['WHATSAPP_DEFAULT_COUNTRY_CODE'] ?? '55')),
             );
         },
         
