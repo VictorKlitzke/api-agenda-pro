@@ -27,6 +27,10 @@ final class HttpWhatsappNotifier implements WhatsappNotifierInterface
     public function sendText(string $phone, string $message, array $metadata = []): bool
     {
         if (!$this->enabled) {
+            $this->logger->warning('whatsapp_notifier_disabled', [
+                'provider' => $this->provider,
+                'endpoint' => $this->endpoint,
+            ]);
             return false;
         }
 
@@ -34,6 +38,10 @@ final class HttpWhatsappNotifier implements WhatsappNotifierInterface
         $trimmedMessage = trim($message);
 
         if ($normalizedPhone === '' || $trimmedMessage === '') {
+            $this->logger->warning('whatsapp_invalid_payload', [
+                'has_phone' => $normalizedPhone !== '',
+                'has_message' => $trimmedMessage !== '',
+            ]);
             return false;
         }
 
